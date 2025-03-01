@@ -1,0 +1,163 @@
+/* -------------------------
+  MODAL BACKGROUND
+------------------------- */
+.createPostModalBg {
+    /* display: none; */ /* Typically toggled via JS */
+    position: fixed;
+    z-index: 8;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    /* Optional: add a transition if you fade in/out the modal */
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  /* -------------------------
+    CREATE POST CONTAINER
+  ------------------------- */
+  .createPostContainer {
+    position: fixed;
+    top: 20vh;
+    left: 35vw;
+    width: 30vw;
+    max-height: 90vh;
+    padding: 1rem;
+    border-radius: 1rem;
+    z-index: 999;
+    background-color: rgba(221, 236, 246, 0.616);
+    backdrop-filter: blur(20px);
+    border: 1px solid #b4b6b8;
+    box-shadow: 
+      rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, 
+      rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, 
+      rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    /* Optional: smooth transitions when opening/closing modal */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  
+  /* Close button for the modal */
+  .closeCreatePost {
+    float: right;
+    position: relative;
+    top: 0;
+    right: 0;
+    font-size: 1.2rem;
+    color: rgb(106, 107, 107);
+    cursor: pointer;
+  }
+  
+  /* -------------------------
+    HEADINGS & TITLES
+  ------------------------- */
+  .createPostTitle {
+    font-family: 'Padauk', sans-serif;
+    font-size: 1.5rem;
+    color: rgb(8, 82, 147);
+    /* margin-bottom can replace the HR usage if desired */
+  }
+  
+  .createPostHr {
+    margin: 0;
+    margin-bottom: 1rem;
+  }
+  
+  /* -------------------------
+    BOOTSTRAP SELECT OVERRIDE
+  ------------------------- */
+  .form-select {
+    background-color: transparent; /* Replaces rgba(0, 255, 255, 0) */
+    color: rgba(8, 82, 147, 0.63);
+  }
+  
+  /* -------------------------
+    UPLOAD BOX & FILE INPUT
+  ------------------------- */
+  .uploadBox {
+    width: 100%;
+  }
+  
+  .uploadBox #uploadPostFile {
+    width: 100%;
+    color: rgba(8, 82, 147, 0.63);
+    cursor: pointer; /* Make sure pointer shows on hover */
+  }
+  
+  /* Remove default file-upload button style */
+  #uploadPostFile::-webkit-file-upload-button {
+    display: none;
+  }
+  
+  /* Custom style for the file-upload button */
+  #uploadPostFile::before {
+    content: 'Upload Image/Video';
+    display: inline-block;
+    background: linear-gradient(to bottom, #f9f9f9, #e3e3e3);
+    border: 1px solid #c0c1c3;
+    border-radius: 3px;
+    padding: 5px 8px;
+    outline: none;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 10pt;
+    margin-right: 10px;
+  }
+  
+  /* -------------------------
+    FORM & DESCRIPTION
+  ------------------------- */
+  .createPostBody form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .descriptionInput input {
+    border-color: #c0c1c3;
+    width: 100%;
+  }
+  
+  .descriptionInput label,
+  .postLocation label {
+    color: rgba(8, 82, 147, 0.63);
+  }
+  
+  /* -------------------------
+    SUBMIT BUTTON
+  ------------------------- */
+  .createPostBody form button {
+    width: fit-content;
+    border: none;
+    padding: 8px 30px;
+    background-color: rgba(6, 112, 234, 0.479);
+    color: aliceblue;
+    font-weight: 500;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .createPostBody form button:hover {
+    background-color: rgba(6, 112, 234, 0.7);
+  }
+  
+  /* -------------------------
+    RESPONSIVE DESIGN
+  ------------------------- */
+  @media only screen and (max-width: 600px) {
+    .createPostContainer {
+      top: 20vh;
+      left: 5vw;
+      width: 90vw;
+    }
+  
+    /* Example if you need to adjust label widths */
+    .uploadImgBox label {
+      width: 82vw;
+    }
+  }
+  
