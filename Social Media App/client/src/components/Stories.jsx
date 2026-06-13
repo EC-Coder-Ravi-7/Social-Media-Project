@@ -25,7 +25,7 @@ const Stories = () => {
       const fetchStories = async () => { 
         try {
           
-            const response = await axios.get('http://localhost:6001/fetchAllStories');
+            const response = await axios.get('https://socialx-backend-g765.onrender.com/fetchAllStories');
             setStories(response.data)
             console.log(response.data[0])
         } catch (error) {
