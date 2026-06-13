@@ -23,7 +23,7 @@ const AuthenticationContextProvider = ({children}) => {
     try{
 
       const loginInputs = {email: email, password: password}
-        await axios.post('http://localhost:6001/login', loginInputs)
+        await axios.post('https://socialx-backend-g765.onrender.com/login', loginInputs)
         .then( async (res)=>{
             console.log("holaads",res);
             localStorage.setItem('userToken', res.data.token);
@@ -47,7 +47,7 @@ const AuthenticationContextProvider = ({children}) => {
   const register = async () =>{
 
     try{
-        await axios.post('http://localhost:6001/register', inputs)
+        await axios.post('https://socialx-backend-g765.onrender.com/register', inputs)
         .then( async (res)=>{
           localStorage.setItem('userToken', res.data.token);
           localStorage.setItem('userId', res.data.user._id);
