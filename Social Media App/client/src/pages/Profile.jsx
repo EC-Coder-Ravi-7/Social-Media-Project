@@ -55,7 +55,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:6001/fetchAllPosts');
+        const response = await axios.get('https://socialx-backend-g765.onrender.com/fetchAllPosts');
         if (response.data) {
           setPosts(response.data);
         }
