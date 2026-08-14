@@ -1,15 +1,25 @@
-.landingPage{
-    height: 290vh;
+/* =========================================================
+   GLOBAL / LANDING PAGE
+========================================================= */
+
+.landingPage {
+    min-height: 290vh;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* background-color: #f2fcffd9; */
     background-color: rgba(127, 255, 212, 0);
+    overflow-x: hidden;
 }
 
-.landing-header{
+
+/* =========================================================
+   LANDING HEADER
+========================================================= */
+
+.landing-header {
     height: 10vh;
+    min-height: 60px;
     background-color: rgba(255, 255, 255, 0.276);
     backdrop-filter: blur(15px);
     width: 85%;
@@ -20,22 +30,27 @@
     top: 3vh;
     z-index: 4;
     align-items: center;
-    justify-content:space-between;
+    justify-content: space-between;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 2px 5px;
+
+    /* Important */
+    box-sizing: border-box;
 }
 
-
-.landing-header-logo img{
+.landing-header-logo img {
     height: 40px;
+    max-width: 100%;
+    object-fit: contain;
 }
 
-.landing-header ul{
+.landing-header ul {
     display: flex;
     gap: 30px;
     margin: 0;
+    padding: 0;
 }
 
-.landing-header ul li{
+.landing-header ul li {
     list-style-type: none;
     font-size: 1.2rem;
     font-family: 'Poppins', sans-serif;
@@ -44,7 +59,8 @@
     transform-origin: right;
     transition: color 1s;
 }
-.landing-header ul li a{
+
+.landing-header ul li a {
     font-size: 1.2rem;
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
@@ -55,64 +71,80 @@
     color: rgb(0, 45, 83);
 }
 
-.landing-header ul li a:hover{
-    color: rgb(0, 127, 231);     
+.landing-header ul li a:hover {
+    color: rgb(0, 127, 231);
 }
 
 
+/* =========================================================
+   LANDING BODY
+========================================================= */
 
-
-
-.landing-body{
-
+.landing-body {
     margin-top: 13vh;
     width: 100%;
-
+    box-sizing: border-box;
 }
 
-.landing-hero{
 
-    height: 100vh;
+/* =========================================================
+   LANDING HERO
+========================================================= */
+
+.landing-hero {
+    min-height: 100vh;
     width: 100%;
     display: flex;
     justify-content: space-evenly;
-
+    box-sizing: border-box;
 }
 
-.landing-hero-content{
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.landing-hero-content {
     width: 50%;
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
-    padding: 2% 0% 2% 5% ;
-
+    padding: 2% 0% 2% 5%;
+    box-sizing: border-box;
 }
-.landing-hero-content h1{
+
+.landing-hero-content h1 {
     font-family: 'Poppins', sans-serif;
     font-weight: bolder;
     font-size: 3.5rem;
     margin: 0;
     color: rgb(0, 108, 197);
 }
-.landing-hero-content p{
+
+.landing-hero-content p {
     font-family: 'Work Sans', sans-serif;
     font-size: 1rem;
     margin: 0;
-
 }
 
-/* landing - authentication */
 
-.authForm{
+/* =========================================================
+   AUTHENTICATION FORM
+========================================================= */
+
+.authForm {
     margin-top: 5%;
-    /* border: 1px solid #cb7c7c; */
     padding: 20px;
     width: 70%;
+
+    /* VERY IMPORTANT */
+    box-sizing: border-box;
+    max-width: 100%;
+
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
     justify-content: center;
     text-align: center;
+
     height: max-content;
     font-family: 'Work Sans', sans-serif;
 
@@ -120,71 +152,84 @@
     backdrop-filter: blur(10px);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     border-radius: 0.5rem;
-
 }
-.authForm h2{
+
+.authForm h2 {
     margin-bottom: 20px;
     font-family: 'Poppins', sans-serif;
     color: rgb(0, 79, 135);
     font-size: 1.8rem;
 }
+
 .authFormInputs {
     width: 100%;
     height: 50px;
+
+    /* VERY IMPORTANT */
+    box-sizing: border-box;
 }
 
-.authFormInputs label{
+.authFormInputs label {
     color: rgb(0, 61, 101);
-    /* padding: 0; */
 }
-.authFormInputs input{
+
+.authFormInputs input {
     color: rgb(0, 61, 101);
     border: none;
     outline: none;
     background-color: rgba(231, 235, 235, 0);
     border: 1px solid #9dc1d975;
-    /* padding: 0; */
-}
-.authFormInputs input #floatingInput .form-control{
-    padding: 0 !important;
+
+    /* Prevent input from overflowing */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-.authForm button{
+.authFormInputs input#floatingInput.form-control {
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+.authForm button {
     background-color: rgb(0, 108, 197);
     font-weight: bold;
     color: rgb(246, 251, 255);
     height: 50px;
+
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
-.authForm p{
+
+.authForm p {
     margin-top: 5%;
     color: black;
 }
-.authForm p span{
+
+.authForm p span {
     margin-top: 5%;
     color: rgb(0, 68, 107);
     cursor: pointer;
 }
 
 
+/* =========================================================
+   HERO IMAGE
+========================================================= */
 
-
-
-
-
-
-.landing-hero-image{
+.landing-hero-image {
     width: 50%;
     display: flex;
-    /* flex-direction: row; */
     gap: 0px;
     align-items: end;
     padding-bottom: 10vh;
     justify-content: space-evenly;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
-
-.landing-hero-image .back{
+.landing-hero-image .back {
     height: 80vh;
     width: 30vw;
     transform: skew(-15deg);
@@ -198,15 +243,22 @@
     position: relative;
     animation-name: hero-img;
     animation-duration: 2s;
+
+    box-sizing: border-box;
 }
 
-#landing-image-sidebar-left{
-
+#landing-image-sidebar-left {
     height: 30vh;
     width: 5vw;
     transform: skew(-15deg);
-    /* background-color: aqua; */
-    background: linear-gradient(145deg, rgba(0,104,205,1) 0%, rgb(42, 161, 240) 55%, rgb(255, 110, 243) 100%);
+
+    background: linear-gradient(
+        145deg,
+        rgba(0, 104, 205, 1) 0%,
+        rgb(42, 161, 240) 55%,
+        rgb(255, 110, 243) 100%
+    );
+
     margin-right: 35px;
     margin-left: 5px;
     animation-name: left;
@@ -214,12 +266,18 @@
     position: relative;
 }
 
-#landing-image-sidebar-right{
+#landing-image-sidebar-right {
     width: 5vw;
     height: 50vh;
     transform: skew(-15deg);
-    /* background-color: aqua; */
-    background: linear-gradient(145deg, rgba(0,104,205,1) 0%, rgb(42, 161, 240) 55%, rgb(255, 110, 243) 100%);
+
+    background: linear-gradient(
+        145deg,
+        rgba(0, 104, 205, 1) 0%,
+        rgb(42, 161, 240) 55%,
+        rgb(255, 110, 243) 100%
+    );
+
     margin: 0;
     padding: 0;
     position: relative;
@@ -229,139 +287,579 @@
 }
 
 
+/* =========================================================
+   HERO ANIMATIONS
+========================================================= */
 
 @keyframes hero-img {
-    from{ top: 100vh;
-          left: -10vw;
-        }
-    to{
+    from {
+        top: 100vh;
+        left: -10vw;
+    }
+
+    to {
         top: 0vh;
         left: 0vw;
     }
 }
+
 @keyframes left {
-    from{ 
-          left: -30vw;
-        }
-    to{
+    from {
+        left: -30vw;
+    }
+
+    to {
         left: 0vw;
     }
 }
 
 @keyframes right {
-    from{ 
-          left: 30vw;
-        }
-    to{
+    from {
+        left: 30vw;
+    }
+
+    to {
         left: -30px;
     }
 }
 
 
+/* =========================================================
+   ABOUT SECTION
+========================================================= */
 
-
-.landing-about{
-    height: 170vh;
+.landing-about {
+    min-height: 170vh;
     width: 100%;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
-.landing-about .about-1{
+.landing-about .about-1 {
     display: flex;
     width: 100%;
 }
 
-
-.landing-about .about-1 img{
+.landing-about .about-1 img {
     width: 50%;
     border: 1px solid #c0dcf0d3;
     border-radius: 0 10rem 0 0;
     height: 80vh;
+    object-fit: cover;
+    box-sizing: border-box;
 }
-.landing-about .about-1 .about-1-content{
+
+.landing-about .about-1 .about-1-content {
     width: 50%;
     height: 100%;
     padding: 5%;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    box-sizing: border-box;
 }
 
-.landing-about .about-1 .about-1-content h3{
+.landing-about .about-1 .about-1-content h3 {
     font-family: 'Poppins', sans-serif;
     font-weight: bold;
-
 }
-.landing-about .about-1 .about-1-content p{
+
+.landing-about .about-1 .about-1-content p {
     font-family: 'Work Sans', sans-serif;
-
 }
 
-.landing-about .about-1 .about-1-content a{
+.landing-about .about-1 .about-1-content a {
     font-family: 'Poppins', sans-serif;
     width: 30%;
     padding: 10px 30px;
     border: none;
-    background: linear-gradient(145deg, rgba(0,104,205,1) 0%, rgb(42, 134, 240) 55%, rgb(249, 122, 239) 100%);
+
+    background: linear-gradient(
+        145deg,
+        rgba(0, 104, 205, 1) 0%,
+        rgb(42, 134, 240) 55%,
+        rgb(249, 122, 239) 100%
+    );
+
     color: #fff;
     font-weight: 500;
     border-radius: 5px;
     text-decoration: none;
+    box-sizing: border-box;
 }
 
 
-.landing-about .about-2{
+/* =========================================================
+   ABOUT 2
+========================================================= */
+
+.landing-about .about-2 {
     display: flex;
     width: 100%;
 }
 
-.landing-about .about-2 img{
+.landing-about .about-2 img {
     width: 50%;
     border: 1px solid #c0dcf0d3;
     border-radius: 0 0 0 10rem;
     height: 80vh;
+    object-fit: cover;
+    box-sizing: border-box;
 }
 
-.landing-about .about-2 .about-2-content{
+.landing-about .about-2 .about-2-content {
     width: 50%;
     height: 100%;
     padding: 5%;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    box-sizing: border-box;
 }
 
-.landing-about .about-2 .about-2-content h3{
+.landing-about .about-2 .about-2-content h3 {
     font-family: 'Poppins', sans-serif;
     font-weight: bold;
-
 }
-.landing-about .about-2 .about-2-content p{
+
+.landing-about .about-2 .about-2-content p {
     font-family: 'Work Sans', sans-serif;
-
 }
 
-.landing-about .about-2 .about-2-content a{
+.landing-about .about-2 .about-2-content a {
     font-family: 'Poppins', sans-serif;
     width: 30%;
     padding: 10px 30px;
     border: none;
-    background: linear-gradient(145deg, rgba(0,104,205,1) 0%, rgb(42, 134, 240) 55%, rgb(249, 122, 239) 100%);
+
+    background: linear-gradient(
+        145deg,
+        rgba(0, 104, 205, 1) 0%,
+        rgb(42, 134, 240) 55%,
+        rgb(249, 122, 239) 100%
+    );
+
     color: #fff;
     font-weight: 500;
     border-radius: 5px;
     text-decoration: none;
+    box-sizing: border-box;
 }
 
 
+/* =========================================================
+   FOOTER
+========================================================= */
 
-.footer{
+.footer {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.footer p{
+.footer p {
     color: rgb(0, 69, 122);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media screen and (max-width: 900px) {
+
+    .landing-header {
+        width: 92%;
+    }
+
+    .landing-header ul {
+        gap: 15px;
+    }
+
+    .landing-header ul li,
+    .landing-header ul li a {
+        font-size: 1rem;
+    }
+
+    .landing-hero-content h1 {
+        font-size: 2.7rem;
+    }
+
+    .authForm {
+        width: 85%;
+    }
+
+    .landing-hero-image .back {
+        width: 32vw;
+    }
+
+    #landing-image-sidebar-left,
+    #landing-image-sidebar-right {
+        width: 6vw;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media screen and (max-width: 600px) {
+
+    /* -----------------------------------------
+       GENERAL
+    ----------------------------------------- */
+
+    .landingPage {
+        width: 100%;
+        min-height: auto;
+        overflow-x: hidden;
+    }
+
+    .landing-body {
+        width: 100%;
+        margin-top: 12vh;
+        overflow-x: hidden;
+    }
+
+
+    /* -----------------------------------------
+       HEADER
+    ----------------------------------------- */
+
+    .landing-header {
+        width: 92%;
+        height: 60px;
+        min-height: 60px;
+        top: 2vh;
+        padding: 0 15px;
+        border-radius: 1rem;
+    }
+
+    .landing-header-logo img {
+        height: 32px;
+        max-width: 120px;
+    }
+
+    .landing-header ul {
+        gap: 10px;
+        padding: 0;
+    }
+
+    .landing-header ul li,
+    .landing-header ul li a {
+        font-size: 0.8rem;
+    }
+
+
+    /* -----------------------------------------
+       HERO
+    ----------------------------------------- */
+
+    .landing-hero {
+        width: 100%;
+        min-height: auto;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        box-sizing: border-box;
+    }
+
+
+    /* -----------------------------------------
+       HERO CONTENT
+    ----------------------------------------- */
+
+    .landing-hero-content {
+        width: 100%;
+        padding: 25px 20px;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .landing-hero-content h1 {
+        width: 100%;
+        text-align: center;
+        font-size: 2.1rem;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    .landing-hero-content p {
+        width: 100%;
+        text-align: center;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+
+    /* -----------------------------------------
+       AUTH FORM - MAIN FIX
+    ----------------------------------------- */
+
+    .authForm {
+        width: 100%;
+        max-width: 400px;
+
+        margin-top: 25px;
+
+        padding: 20px 15px;
+
+        /* This is critical */
+        box-sizing: border-box;
+
+        overflow: hidden;
+    }
+
+    .authForm h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .authFormInputs {
+        width: 100%;
+        max-width: 100%;
+        height: 50px;
+        box-sizing: border-box;
+    }
+
+    .authFormInputs input {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .authFormInputs input#floatingInput.form-control {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 0 !important;
+    }
+
+    .authForm button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .authForm p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+
+    /* -----------------------------------------
+       HERO IMAGE
+    ----------------------------------------- */
+
+    .landing-hero-image {
+        width: 100%;
+        height: 55vh;
+        min-height: 350px;
+        padding-bottom: 30px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .landing-hero-image .back {
+        width: 55vw;
+        max-width: 220px;
+        height: 45vh;
+        min-height: 280px;
+        transform: skew(-10deg);
+    }
+
+    #landing-image-sidebar-left {
+        width: 10vw;
+        max-width: 45px;
+        height: 20vh;
+        margin-right: 15px;
+        margin-left: 0;
+        transform: skew(-10deg);
+    }
+
+    #landing-image-sidebar-right {
+        width: 10vw;
+        max-width: 45px;
+        height: 30vh;
+        left: -15px;
+        transform: skew(-10deg);
+    }
+
+
+    /* -----------------------------------------
+       ABOUT SECTION
+    ----------------------------------------- */
+
+    .landing-about {
+        width: 100%;
+        min-height: auto;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .landing-about .about-1,
+    .landing-about .about-2 {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+
+    /* -----------------------------------------
+       ABOUT 1
+    ----------------------------------------- */
+
+    .landing-about .about-1 img {
+        width: 90%;
+        height: 45vh;
+        min-height: 250px;
+        border-radius: 0 5rem 0 0;
+        object-fit: cover;
+    }
+
+    .landing-about .about-1 .about-1-content {
+        width: 100%;
+        height: auto;
+        padding: 30px 25px;
+        box-sizing: border-box;
+    }
+
+    .landing-about .about-1 .about-1-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .landing-about .about-1 .about-1-content p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .landing-about .about-1 .about-1-content a {
+        width: fit-content;
+        padding: 10px 25px;
+    }
+
+
+    /* -----------------------------------------
+       ABOUT 2
+    ----------------------------------------- */
+
+    .landing-about .about-2 {
+        flex-direction: column-reverse;
+    }
+
+    .landing-about .about-2 img {
+        width: 90%;
+        height: 45vh;
+        min-height: 250px;
+        border-radius: 0 0 0 5rem;
+        object-fit: cover;
+    }
+
+    .landing-about .about-2 .about-2-content {
+        width: 100%;
+        height: auto;
+        padding: 30px 25px;
+        box-sizing: border-box;
+    }
+
+    .landing-about .about-2 .about-2-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .landing-about .about-2 .about-2-content p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .landing-about .about-2 .about-2-content a {
+        width: fit-content;
+        padding: 10px 25px;
+    }
+
+
+    /* -----------------------------------------
+       FOOTER
+    ----------------------------------------- */
+
+    .footer {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .footer p {
+        font-size: 0.85rem;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   Example: 320px - 375px
+========================================================= */
+
+@media screen and (max-width: 375px) {
+
+    .landing-header {
+        width: 94%;
+        padding: 0 12px;
+    }
+
+    .landing-header-logo img {
+        height: 28px;
+    }
+
+    .landing-header ul {
+        gap: 7px;
+    }
+
+    .landing-header ul li,
+    .landing-header ul li a {
+        font-size: 0.7rem;
+    }
+
+    .landing-hero-content {
+        padding: 20px 15px;
+    }
+
+    .landing-hero-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .landing-hero-content p {
+        font-size: 0.85rem;
+    }
+
+    .authForm {
+        width: 100%;
+        padding: 18px 12px;
+    }
+
+    .authForm h2 {
+        font-size: 1.35rem;
+    }
+
+    .landing-hero-image {
+        height: 50vh;
+        min-height: 300px;
+    }
+
+    .landing-hero-image .back {
+        width: 50vw;
+        height: 40vh;
+        min-height: 240px;
+    }
 }

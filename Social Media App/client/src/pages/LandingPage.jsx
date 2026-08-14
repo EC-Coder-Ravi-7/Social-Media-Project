@@ -30,8 +30,8 @@ const LandingPage = () => {
 
             <div className="landing-hero" id='home'>
                 <div className="landing-hero-content">
-                    <h1>SocialX</h1>
-                    <p>Step into SocialX, the playground for the wildly imaginative, where vibrant communities thrive and eccentricities are celebrated. </p>
+                    <h1>SocialeX</h1>
+                    <p>Step into SocialeX, the playground for the wildly imaginative, where vibrant communities thrive and eccentricities are celebrated. </p>
 
                     <div className="authentication-form">
 
@@ -63,7 +63,7 @@ const LandingPage = () => {
                     <div className="about-1-content">
 
                         <h3>Stay Connected</h3>
-                        <p>SocialX makes it easy to maintain touch with your old friends, regardless of geographical boundaries. Connect with them on the platform, follow their profiles, and keep up with their updates. Engage with their content, share memories, and reminisce together.</p>
+                        <p>SocialeX makes it easy to maintain touch with your old friends, regardless of geographical boundaries. Connect with them on the platform, follow their profiles, and keep up with their updates. Engage with their content, share memories, and reminisce together.</p>
                         <a href='#home'>Join now!!</a>
 
                     </div>
@@ -71,7 +71,7 @@ const LandingPage = () => {
                 <div className="about-2">
                     <div className="about-2-content">
                         <h3>Amplify Your Voice</h3>
-                        <p>SocialX gives you the power to amplify your voice and share your unique perspective with a global audience. Whether you're an artist, a writer, a musician, or a content creator in any other field, SocialX provides you with the stage to showcase your talent and gain recognition.</p>
+                        <p>SocialeX gives you the power to amplify your voice and share your unique perspective with a global audience. Whether you're an artist, a writer, a musician, or a content creator in any other field, SocialeX provides you with the stage to showcase your talent and gain recognition.</p>
                         <a href='#home'>Join now!!</a>
                     </div>
                     <img src={About2} className='about-2-img' alt="" />
@@ -80,7 +80,7 @@ const LandingPage = () => {
             </div>
 
             <div className="footer">
-                <p>All rights reserved - &#169; SocialX.com</p>
+                <p>All rights reserved - &#169; SocialeX.com</p>
             </div>
 
 
