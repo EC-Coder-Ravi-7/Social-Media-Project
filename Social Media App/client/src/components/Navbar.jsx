@@ -4,21 +4,31 @@ import { BiHomeAlt } from "react-icons/bi";
 import { BsChatSquareText } from "react-icons/bs";
 import { CgAddR } from "react-icons/cg";
 import { TbNotification } from "react-icons/tb";
+import navProfile from '../images/nav-profile.avif';
 import { GeneralContext } from '../context/GeneralContextProvider';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const { 
-    isCreatPostOpen, 
-    setIsCreatePostOpen, 
-    setIsCreateStoryOpen, 
-    isNotificationsOpen, 
-    setNotificationsOpen 
+  const {
+    isCreatPostOpen,
+    setIsCreatePostOpen,
+    setIsCreateStoryOpen,
+    isNotificationsOpen,
+    setNotificationsOpen,
   } = useContext(GeneralContext);
 
   const navigate = useNavigate();
+
   const profilePic = localStorage.getItem('profilePic');
   const userId = localStorage.getItem('userId');
+
+  const handleProfileClick = () => {
+    if (userId) {
+      navigate(`/profile/${userId}`);
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="Navbar">
@@ -26,37 +36,26 @@ const Navbar = () => {
         className="homebtn btns" 
         onClick={() => navigate('/')} 
       />
-      <BsChatSquareText  
+      <BsChatSquareText 
         className="chatbtn btns" 
         onClick={() => navigate('/chat')} 
       />
       <CgAddR 
         className="createPostbtn btns" 
         onClick={() => {
-          const shouldOpenCreatePost = !isCreatPostOpen;
-          setIsCreatePostOpen(shouldOpenCreatePost);
+          setIsCreatePostOpen(!isCreatPostOpen);
           setIsCreateStoryOpen(false);
-          if (shouldOpenCreatePost) {
-            setNotificationsOpen(false);
-          }
         }} 
       />
       <TbNotification 
         className="Notifybtn btns" 
-        onClick={() => {
-          const shouldOpenNotifications = !isNotificationsOpen;
-          setNotificationsOpen(shouldOpenNotifications);
-          if (shouldOpenNotifications) {
-            setIsCreatePostOpen(false);
-            setIsCreateStoryOpen(false);
-          }
-        }} 
+        onClick={() => setNotificationsOpen(!isNotificationsOpen)} 
       />
       <img 
         className="profile" 
-        src={profilePic} 
+        src={profilePic && profilePic !== "undefined" ? profilePic : navProfile} 
         alt="Profile" 
-        onClick={() => navigate(`/profile/${userId}`)} 
+        onClick={handleProfileClick} 
       />
     </div>
   );
