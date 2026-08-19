@@ -5,6 +5,7 @@ import { GeneralContext } from '../../context/GeneralContextProvider';
 const Search = () => {
 
   const {dispatch, socket} = useContext(GeneralContext)
+
   const [search, setSearch] = useState('');
   const userId = localStorage.getItem('userId');
   const [user, setUser] = useState();
@@ -27,6 +28,7 @@ const Search = () => {
     });
   },[socket])
 
+
   const handleSelect = async (user) =>{
     await dispatch({type:"CHANGE_USER", payload: user});
     setUser();
@@ -35,8 +37,7 @@ const Search = () => {
   return (
     <div className='search'>
       <div className="searchform">
-        <input type="text" placeholder='Search'
-                 onChange={(e)=> {setSearch(e.target.value)}} value={search} />
+        <input type="text" placeholder='Search' onChange={(e)=> {setSearch(e.target.value)}} value={search} />
         <div className="s-icon" onClick={handleSearch}>
           <TbSearch />
         </div>
@@ -46,9 +47,16 @@ const Search = () => {
 
       {user &&  <div className="userInfo" onClick={() => handleSelect(user)} >
                   <img src={user.profilePic} alt="" />
-                  <div className="userChatInfo">  <span>{user.username}</span> </div>
+                  <div className="userChatInfo">
+                    <span>{user.username}</span>
+                  </div>
                 </div>
               }
+            
+      
+
     </div>
-)}
+  )
+}
+
 export default Search

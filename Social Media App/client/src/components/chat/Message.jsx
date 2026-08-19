@@ -4,7 +4,9 @@ import { GeneralContext } from '../../context/GeneralContextProvider';
 const Message = ({message}) => {
 
   const {chatData} = useContext(GeneralContext);
+
   const ref = useRef();
+
   let date = new Date(message.date);
 
   useEffect(() => {
@@ -22,6 +24,7 @@ const Message = ({message}) => {
       <div className="messageContent">
         <p>{message.text}</p>
         {message.file && <img src={message.file} alt="" />}
+        
       </div>
     </div>
     </div>

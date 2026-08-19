@@ -4,7 +4,7 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
+import {BrowserRouter} from 'react-router-dom';
 import { GeneralContextProvider } from './context/GeneralContextProvider';
 import AuthenticationContextProvider from './context/AuthenticationContextProvider';
 import { SocketContextProvider } from './context/SocketContextProvider';
@@ -14,16 +14,17 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthenticationContextProvider>
-        {/* Uncomment SocketContextProvider agar aap socket functionality use karna chahte ho */}
         {/* <SocketContextProvider> */}
           <GeneralContextProvider>
-            <App />
+              <App />
           </GeneralContextProvider>
         {/* </SocketContextProvider> */}
       </AuthenticationContextProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
-
-// Report web vitals can be logged or sent to an analytics endpoint.
+ 
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

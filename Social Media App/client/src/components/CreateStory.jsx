@@ -26,7 +26,9 @@ const CreateStory = () => {
 
     const handleStoryUpload = async (e) =>{
         e.preventDefault();
+        
         const storageRef = ref(storage, uuidv4());
+
         const uploadTask = uploadBytesResumable(storageRef, storyFile);
 
         uploadTask.on('state_changed', 
@@ -35,14 +37,14 @@ const CreateStory = () => {
         }, 
         (error) => {
             console.log(error);
-        }, () => {
+        }, 
+        () => {
             getDownloadURL(uploadTask.snapshot.ref).then( async (downloadURL) => {
             console.log('File available at', downloadURL);
 
             try{
-                await socket.emit('create-new-story', {userId: localStorage.getItem('userId'), username: localStorage.getItem('username'), 
-                                                        userPic: localStorage.getItem('profilePic'), fileType: storyType, file: downloadURL, 
-                                                        text: storyDescription});
+                 
+                await socket.emit('create-new-story', {userId: localStorage.getItem('userId'), username: localStorage.getItem('username'), userPic: localStorage.getItem('profilePic'), fileType: storyType, file: downloadURL, text: storyDescription});
                 setIsCreateStoryOpen(false);
                 setStoryDescription('');
                 setStoryFile(null);
@@ -51,8 +53,12 @@ const CreateStory = () => {
 
             }catch(err){
                 console.log(err);
-            }  });
-        } );
+            }
+
+
+            });
+        }
+        );
     }
 
   return (
@@ -76,8 +82,7 @@ const CreateStory = () => {
                             <input type="file" name="PostFile" id="uploadPostFile" onChange={(e)=> setStoryFile(e.target.files[0])} />
                         </div>
                         <div className="form-floating mb-3 authFormInputs descriptionInput">
-                            <input type="text" className="form-control descriptionInput" id="floatingDescription" placeholder="Description" 
-                                                                onChange={(e)=> setStoryDescription(e.target.value)} value={storyDescription}  /> 
+                            <input type="text" className="form-control descriptionInput" id="floatingDescription" placeholder="Description" onChange={(e)=> setStoryDescription(e.target.value)} value={storyDescription}  /> 
                             <label htmlFor="floatingDescription">Text</label>
                         </div>
                         {uploadProgress ?

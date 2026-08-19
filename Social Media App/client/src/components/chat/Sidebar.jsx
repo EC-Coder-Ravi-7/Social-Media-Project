@@ -1,6 +1,6 @@
 import React from 'react'
 import Search from './Search'
-import Chats from './Chatsch'
+import Chats from './Chats'
 // import Navbar from './'
 
 const Sidebar = () => {

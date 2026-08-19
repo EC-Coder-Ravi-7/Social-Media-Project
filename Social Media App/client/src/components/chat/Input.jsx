@@ -4,20 +4,27 @@ import { GeneralContext } from '../../context/GeneralContextProvider'
 import {v4 as uuid} from 'uuid';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../../firebase';
+import axios from 'axios';
 
 const Input = () => {
 
     const {socket, chatData} = useContext(GeneralContext);
+
     const [text, setText] = useState('');
     const [file, setFile] = useState(null);
+
     const [uploadProgress, setUploadProgress] = useState();
+
     const userId = localStorage.getItem('userId');
+
 
     const handleSend = async () =>{
 
       if (file){
+
         const storageRef = ref(storage, uuid());
         const uploadTask = uploadBytesResumable(storageRef, file);
+
         uploadTask.on('state_changed', 
         (snapshot) => {
             setUploadProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100); 
@@ -31,23 +38,26 @@ const Input = () => {
 
             try{
               let date = new Date() 
-              await socket.emit('new-message', {chatId: chatData.chatId ,id: uuid(), 
-                                                  text: text, file: downloadURL, 
-                                                  senderId: userId, date: date});
+              await socket.emit('new-message', {chatId: chatData.chatId ,id: uuid(), text: text, file: downloadURL, senderId: userId, date: date});
               setUploadProgress();
               setText('');
               setFile(null);
             }catch(err){
                 console.log(err);
             }
+
+
             });
-        });
+        }
+        );
+
       }else{
+
         let date = new Date() 
-        await socket.emit('new-message', {chatId: chatData.chatId ,id: uuid(), 
-                                            text: text,file: '', senderId: userId, date: date});
+        await socket.emit('new-message', {chatId: chatData.chatId ,id: uuid(), text: text,file: '', senderId: userId, date: date});
         setText('');
       }
+
     }
 
   return (

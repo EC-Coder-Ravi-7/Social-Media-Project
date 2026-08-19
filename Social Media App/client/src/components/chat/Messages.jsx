@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
-import Message from './Messagesss'
+import Message from './Message'
 import { GeneralContext } from '../../context/GeneralContextProvider';
 
 const Messages = () => {
 
   const {socket} = useContext(GeneralContext)
   const [messages, setMessages] = useState([]);
+
   const {chatData} = useContext(GeneralContext);
+  
 
   useEffect(()=>{
     const handleMessagesUpdated = ({ chat }) => {
@@ -35,10 +37,13 @@ const Messages = () => {
     <div className='messages' >
       
       {messages.length > 0 &&  messages.map((message)=>(
+
         <Message message={message} key={message.id} />
       ))
       }
+
 </div>
   )
 }
+
 export default Messages

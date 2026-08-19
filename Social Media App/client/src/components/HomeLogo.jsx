@@ -8,6 +8,7 @@ import Search from './Search';
 const HomeLogo = () => {
 
   const {socket} = useContext(GeneralContext);
+
   const [search, setSearch] = useState('');
   const [searchedUser, setSearchedUser] = useState();
 
@@ -15,11 +16,13 @@ const HomeLogo = () => {
     await socket.emit('user-search', {username: search});
     setSearch('')
   }
+
   useEffect(()=>{
     socket.on('searched-user', ({user})=>{
       setSearchedUser(user);
     });
   },[socket])
+
 
   return (
     <div className="LogoSearch">

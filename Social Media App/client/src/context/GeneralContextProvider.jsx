@@ -4,7 +4,7 @@ import socketIoClient from 'socket.io-client';
 export const GeneralContext = createContext();
 
 
-const WS = 'https://socialx-backend-g765.onrender.com';
+const WS = 'http://localhost:6001';
 
 const socket = socketIoClient(WS);
 
@@ -15,6 +15,7 @@ export const GeneralContextProvider = ({children}) => {
     const [isNotificationsOpen, setNotificationsOpen] = useState(false);
 
     const [notifications, setNotifications] = useState([]);
+
 
     const [chatFirends, setChatFriends] = useState([]);
    
@@ -44,11 +45,6 @@ export const GeneralContextProvider = ({children}) => {
 
 
   return (
-    <GeneralContext.Provider value={{socket, isCreatPostOpen, setIsCreatePostOpen, isCreateStoryOpen, 
-                                        setIsCreateStoryOpen, isNotificationsOpen, setNotificationsOpen, notifications, 
-                                        setNotifications, chatFirends, setChatFriends, chatData:state, dispatch}}>
-                                            
-                {children}
-    </GeneralContext.Provider>
+    <GeneralContext.Provider value={{socket, isCreatPostOpen, setIsCreatePostOpen, isCreateStoryOpen, setIsCreateStoryOpen, isNotificationsOpen, setNotificationsOpen, notifications, setNotifications, chatFirends, setChatFriends, chatData:state, dispatch}}>{children}</GeneralContext.Provider>
   )
 }

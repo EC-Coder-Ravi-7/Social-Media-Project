@@ -14,6 +14,7 @@ const Search = ({searchedUser, setSearchedUser}) => {
                 </div>
               </div>
             }
+
     </div>
   )
 }

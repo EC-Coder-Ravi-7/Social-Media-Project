@@ -7,7 +7,7 @@ import {RxCross2} from 'react-icons/rx'
 
 const Stories = () => {
 
-    const {socket, setIsCreateStoryOpen} = useContext(GeneralContext);
+    const {socket, isCreateStoryOpen, setIsCreateStoryOpen} = useContext(GeneralContext);
 
     const [stories, setStories] = useState([])
     const [isStoryPlaying, setIsStoryPlaying] = useState(false);
@@ -25,7 +25,7 @@ const Stories = () => {
       const fetchStories = async () => { 
         try {
           
-            const response = await axios.get('https://socialx-backend-g765.onrender.com/fetchAllStories');
+            const response = await axios.get('http://localhost:6001/fetchAllStories');
             setStories(response.data)
             console.log(response.data[0])
         } catch (error) {
@@ -59,17 +59,8 @@ const Stories = () => {
                 </div>
 
                 {
-                   stories && stories.filter(story => ((localStorage.getItem('following').includes(story.userId) 
-                                                                || story.userId === localStorage.getItem('userId'))
-                                                                         && (Math.abs(Math.round((new Date().getTime() - new Date(story.createdAt).getTime()) / (1000 * 60 * 60)))) < 24 ))
-                        .map((story)=>(
-
-                        <div className="story user-story" key={story._id} 
-                                    onClick={()=> handleOpenStory(story)} 
-                                    style={story.viewers.includes(localStorage.getItem('userId'))
-                                                     ? {border: '3px solid #a5a7a995'}
-                                                     : {border: '3px solid #569bdfc9'} 
-                                                     } >
+                   stories && stories.filter(story => ((localStorage.getItem('following').includes(story.userId) || story.userId === localStorage.getItem('userId')) && (Math.abs(Math.round((new Date().getTime() - new Date(story.createdAt).getTime()) / (1000 * 60 * 60)))) < 24 )).map((story)=>(
+                        <div className="story user-story" key={story._id} onClick={()=> handleOpenStory(story)} style={story.viewers.includes(localStorage.getItem('userId')) ? {border: '3px solid #a5a7a995'} : {border: '3px solid #569bdfc9'} } >
                             <img src={story.userPic} alt="" />
                             <p>{story.username}</p>
                         </div>

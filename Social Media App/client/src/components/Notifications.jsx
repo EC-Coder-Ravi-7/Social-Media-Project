@@ -9,7 +9,7 @@ const Notifications = () => {
 
   return (
     <>
-        <div className="notificationsModalBg" style={isNotificationsOpen? {display: 'block'} : {display: 'none'}} >
+        <div className="notificationsModalBg" style={isNotificationsOpen? {display: 'contents'} : {display: 'none'}} >
             <div className="notificationsContainer">
                
                 <RxCross2 className='closenotifications' onClick={()=> setNotificationsOpen(false)} />

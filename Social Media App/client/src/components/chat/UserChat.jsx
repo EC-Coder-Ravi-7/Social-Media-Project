@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import {BiArrowBack} from 'react-icons/bi';
 import Input from './Input';
 import Messages from './Messages';
 import { GeneralContext } from '../../context/GeneralContextProvider';
@@ -9,18 +10,24 @@ const UserChat = () => {
 
   return (
     <div className='chat'>
-      { chatData.user &&
-   
+      {
+        chatData.user &&
+
+      
       <div className="chatInfo">
         <img src={chatData.user?.profilePic} alt="" />
         <span>{chatData.user.username}</span>
 
       </div>
+
     }
       <Messages />
+
       <Input />
+
 
     </div>
   )
 }
+
 export default UserChat

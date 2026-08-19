@@ -1,8 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../styles/Posts.css';
 import { AiOutlineHeart, AiTwotoneHeart } from "react-icons/ai";
+import { BiCommentDetail } from "react-icons/bi";
+import { FiSend } from "react-icons/fi";
 import { FaGlobeAmericas } from "react-icons/fa";
 import {IoIosPersonAdd} from 'react-icons/io'
+import postImg from '../images/nav-profile.avif';
 import axios from 'axios';
 import { GeneralContext } from '../context/GeneralContextProvider';
 import { useNavigate } from 'react-router-dom';
@@ -10,15 +13,19 @@ import { useNavigate } from 'react-router-dom';
 const Post = () => {
 
     const navigate = useNavigate();
+
     const {socket} = useContext(GeneralContext);
+
+
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
         fetchPosts();
       }, []);
+    
       const fetchPosts = async () => { 
         try {
-          const response = await axios.get('https://socialx-backend-g765.onrender.com/fetchAllPosts');
+          const response = await axios.get('http://localhost:6001/fetchAllPosts');
           const fetchedPosts = response.data;
           setPosts(fetchedPosts);
         } catch (error) {
@@ -26,28 +33,45 @@ const Post = () => {
         }
       };
 
+
+
     //   Like
 
     const handleLike = (userId, postId) =>{
         socket.emit('postLiked', {userId, postId});
+
     }
+
     const handleUnLike = (userId, postId) =>{
         socket.emit('postUnLiked', {userId, postId});
+
     }
+
+    
     useEffect(()=>{
         socket.on("likeUpdated", ()=>{
             // alert("likedd");
         })
+
         socket.on('userFollowed', ({following})=>{
+
             localStorage.setItem('following', following);
+            
         })
+
     },[socket])
 
+
     const handleFollow = async (userId) =>{
+        // ownId = current user Id
+        // followingUserId = user you want to follow
         socket.emit('followUser', {ownId: localStorage.getItem('userId'), followingUserId: userId});
     }
 
+
+
     const [comment, setComment] = useState('');
+
     const handleComment = (postId, username)=>{
         socket.emit('makeComment', {postId, username, comment});
     }
@@ -79,11 +103,15 @@ const Post = () => {
         </div>
 
         { post.fileType === 'photo'?
+                
                 <img src={post.file} className='postimg' alt="" />
+            
                 :
+                
                 <video id="videoPlayer" className='postimg' controls autoPlay muted>
                     <source src={post.file} />
                 </video>
+                
                 }
 
         <div className="postReact">
@@ -91,10 +119,15 @@ const Post = () => {
 
                 {
                     post.likes.includes(localStorage.getItem('userId')) ?
+
                     <AiTwotoneHeart className='support reactbtn'  onClick={() => handleUnLike(localStorage.getItem('userId'), post._id)}/>
+
                     :
+
                     <AiOutlineHeart className='support reactbtn'  onClick={() => handleLike(localStorage.getItem('userId'), post._id)}/>
                 }
+
+
                 
                 <label htmlFor="support" className='supportCount'>{post.likes.length}</label>
             </div>
@@ -105,6 +138,8 @@ const Post = () => {
                 <label htmlFor="place" className='place'>{post.location}</label>
             </div>
         </div>
+
+        
 
         <div className="detail">
             <div className='descdataWithBtn'>
