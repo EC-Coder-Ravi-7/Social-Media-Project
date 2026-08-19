@@ -1,70 +1,120 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import Users from '../models/Users.js';
+import prisma from '../db.js';
 
+export const register = async (req, res) => {
+  try {
+    const { username, email, password, profilePic, about } = req.body;
 
-
-
-const generateToken =(id) =>{
-
-    const jwtSecret = 'thisIsTheSceretCodeForTheJWTToken';
-
-    return jwt.sign({id}, jwtSecret, {
-        expiresIn: '30d',
-    })
-}
-
-export const register = async (req, res) =>{
-    try{
-
-        const {username, email, password, profilePic} = req.body;
-
-        const salt = await bcrypt.genSalt();
-        const passwordHash = await bcrypt.hash(password, salt);
-
-        const newUser = new Users({
-            username, 
-            email,
-            password: passwordHash,
-            profilePic
-        });
-
-        const user = await newUser.save();
-
-        // generate jwt token using function we defined at top of the page
-        const token = generateToken(user._id);
-
-        const userData = {_id: user._id, username: user.username,
-                             email:user.email, profilePic:user.profilePic, 
-                             about: user.about, posts: user.posts, 
-                             followers: user.followers, following:user.following };
-
-        res.status(200).json({token, user:userData});
-
-    }catch(err){
-        res.status(500).json({error: err.message});
+    // Check existing email
+    const existingEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingEmail) {
+      return res.status(400).json({ msg: 'Email already registered' });
     }
+
+    // Check existing username
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (existingUsername) {
+      return res.status(400).json({ msg: 'Username already taken' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user in PostgreSQL
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+        profilePic: profilePic || '',
+        about: about || 'Hey there! I am using SocialX.',
+      },
+    });
+
+    return res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        profilePic: user.profilePic,
+        about: user.about,
+      },
+    });
+  } catch (error) {
+    console.error('Register Error:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
-export const login = async (req, res) =>{
-    try{
-        const {email, password} = req.body;
-        const user = await Users.findOne({email:email});
-        if(!user) return res.status(400).json({msg: "User does not exist"});
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch) return res.status(400).json({msg: "Invalid credentials"});
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-        // generate jwt token using function we defined at top of the page
-        const token = generateToken(user._id);
-        delete user.password;
-        const userData = {_id: user._id, username: user.username, email:user.email,
-                             profilePic:user.profilePic, about: user.about, posts: user.posts,
-                             followers: user.followers, following:user.following };
-                             
-        res.status(200).json({token, user:userData});
-        console.log(token, userData);
-    }catch(err){
-        res.status(500).json({error: err.message});
+    if (!user) {
+      return res.status(400).json({ msg: 'User does not exist' });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid credentials' });
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || 'thisIsTheSceretCodeForTheJWTToken';
+    const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '7d' });
+
+    return res.status(200).json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        profilePic: user.profilePic,
+        about: user.about,
+      },
+    });
+  } catch (error) {
+    console.error('Login Error:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { userId, username, about } = req.body;
+    const profilePicUrl = req.file ? req.file.path : undefined;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(username && { username }),
+        ...(about && { about }),
+        ...(profilePicUrl && { profilePic: profilePicUrl }),
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        profilePic: updatedUser.profilePic,
+        about: updatedUser.about,
+      },
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({ error: 'Failed to update profile' });
+  }
 };

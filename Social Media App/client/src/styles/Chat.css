@@ -1,323 +1,306 @@
-.chatPage{
-    height: 100vh;
+.chatRoot {
+  min-height: 100vh;
+  background-color: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 64px;
+  padding-bottom: 64px;
+  box-sizing: border-box;
 }
 
-.home{
-    height: 100vh;
-    background-color: rgba(229, 247, 254, 0.509);
-    display: flex;
-    position: relative;
-    /* top: 10vh; */
-}
-.home .sidebar{
-    flex: 1;
-    border-right: 1px solid #c3c4c5;
-    background-color: rgb(122, 170, 211);
-}
-.home .chat{
-    flex:3;
+/* Instagram 2-Column Chat Box */
+.igChatContainer {
+  width: 100%;
+  max-width: 900px;
+  height: calc(100vh - 135px);
+  background: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 16px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-
-
-
-
-/* Search bar */
-
-.search{
-    width: 100%;
-    border-bottom: 1px solid #8fa1b5;
-    
+/* Left Contacts Sidebar */
+.igChatSidebar {
+  width: 320px;
+  border-right: 1px solid #efefef;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  flex-shrink: 0;
 }
 
-.search input{
-    outline: none;
-    width: 100%;
-    margin:10px 2.5%;
-    height: 40px;
-    border-radius: 0.7rem;
-    border: none;
-    padding: 5px 10px ;
-    background-color: #bbd2e9;
-    position: relative;
-    left: 19px;
-}
-.search input::placeholder{
-    color: #5581ae;
+.igChatSidebarHeader {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #efefef;
+  padding: 0 16px;
 }
 
-.search .searchform{
-    display: flex;
-    align-items: center;
+.igChatSidebarHeader h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #262626;
+  margin: 0;
 }
 
-.search .searchform .s-icon{
-    height: 32px;
-    width: 38px;
-    position: relative;
-    left: -27px;
-    border-radius: 0.7rem;
+.igChatSearchWrapper {
+  position: relative;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f4f4f4;
 }
 
-.search .userInfo{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    color: rgb(221, 231, 239);
-    cursor: pointer;
-}
-.search .userInfo:hover{
-    background-color: rgb(37, 123, 176);
-}
-
-.search .userInfo img{
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
+.igChatSearchWrapper input {
+  width: 100%;
+  height: 34px;
+  background: #efefef;
+  border: none;
+  border-radius: 10px;
+  padding: 0 12px 0 34px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
 }
 
-
-/* chats */
-
-.chats{
-    height: calc(100%-200px);
-    overflow-y: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none; 
+.igSearchIcon {
+  position: absolute;
+  left: 24px;
+  top: 19px;
+  color: #8e8e8e;
+  font-size: 14px;
 }
-.chats::-webkit-scrollbar{
+
+.igConversationsList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.igConversationCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.igConversationCard:hover,
+.igConversationCard.active {
+  background: #f8fafc;
+}
+
+.contactAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.contactName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+}
+
+.contactSubtext {
+  font-size: 12px;
+  color: #8e8e8e;
+}
+
+/* Right Chat Area */
+.igChatMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.igChatMainHeader {
+  height: 56px;
+  border-bottom: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+}
+
+.mobileBackBtn {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #262626;
+}
+
+.activeAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activeUserMeta h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+}
+
+.activeUserMeta span {
+  font-size: 11px;
+  color: #10b981;
+}
+
+.igMessagesBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.noMessagesPlaceholder {
+  margin: auto;
+  text-align: center;
+  color: #8e8e8e;
+}
+
+.largePlaceholderAvatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.igMessageRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.igMessageRow.mine {
+  justify-content: flex-end;
+}
+
+.bubbleAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.igBubble {
+  max-width: 60%;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.igBubble.mine {
+  background: #0095f6;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.igBubble.theirs {
+  background: #efefef;
+  color: #262626;
+  border-bottom-left-radius: 4px;
+}
+
+.bubbleTime {
+  display: block;
+  font-size: 9px;
+  margin-top: 3px;
+  opacity: 0.75;
+  text-align: right;
+}
+
+/* Chat Input Bar */
+.igChatInputArea {
+  padding: 12px 16px;
+  background: #ffffff;
+}
+
+.igInputBoxWrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dbdbdb;
+  border-radius: 22px;
+  padding: 4px 8px 4px 16px;
+}
+
+.igInputBoxWrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+
+.igSendBtn {
+  background: transparent;
+  border: none;
+  color: #0095f6;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+.igSendBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.noChatSelected {
+  margin: auto;
+  text-align: center;
+  color: #8e8e8e;
+}
+
+.noChatIcon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+/* Responsive Mobile Rules */
+@media (max-width: 650px) {
+  .igChatContainer {
+    max-width: 420px;
+    height: calc(100vh - 128px);
+  }
+
+  .igChatSidebar.hideOnMobile {
     display: none;
-}
+  }
 
-
-.chats .userInfo{
-   
-    padding: 10px;
-    color: rgb(240, 246, 251);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.chats .userInfo:hover{
-    background-color: rgb(37, 123, 176);
-}
-
-.chats .userInfo img{
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-}
-
-.chats .userInfo .userChatInfo{
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding: 0;
-}
-
-.chats .userInfo .userChatInfo span{
-    font-size: 1.2rem;
-}
-.chats .userInfo .userChatInfo p{
-    font-size: 0.8rem;
-    margin: 0;
-    color: #c5d2de;
-}
-
-
-
-
-/* chat  */
-
-
-
-.chat .chatInfo{
-    height: 10vh;
-    background-color: rgba(165, 199, 230, 0.377);
-    backdrop-filter: blur(15px);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.chat .chatInfo img{
-    height: 35px;
-    width: 35px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-left: 20px;
-}
-
-.chat .chatInfo span{
-    color: #066ecfba;
-    font-weight: bolder;
-    /* margin-left: 20px; */
-}
-
-
-
-/* messages */
-
-.messages{
-    padding: 10px;
-    height: calc(100% - 140px);
-    overflow-y: scroll;
-
-    -ms-overflow-style: none;
-    scrollbar-width: none; 
-    
-}
-.messages::-webkit-scrollbar{
+  .igChatMain.hideOnMobile {
     display: none;
-}
+  }
 
-
-.message{
-    display: flex;
-    gap:20px;
-    margin-bottom: 5px;
-}
-.message .messageInfo{
-    display: flex;
-    flex-direction: column;
-    /* margin-top: 15px; */
-}
-.message .messageInfo img{
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.message .messageInfo span{
-    font-size: 0.7rem;
-    color: #858a91;
-}
-
-.message .messageContent{
-    display: flex;
-    align-items: flex-start;
-    max-width: 60%;
-    flex-direction: column;
-}
-
-.message .messageContent img{
-    width: 50%;
-    border-radius: 0.3rem;
-}
-.message .messageContent p{
-    background-color: #8aacda;
-    color: #ffffff;
-    padding: 10px 15px;
-    border-radius: 0 12px 12px 12px;
-    font-size: 1rem;
-}
-
-
-.owner{
-    flex-direction: row-reverse;
-}
-.owner .messageContent{
-    display: flex;
-    align-items: flex-end;
-}
-.owner .messageContent p{
-    background-color: #6fb2ff;
-    color: #ffffff;
-    padding: 10px 15px;
-    border-radius: 12px 0px 12px 12px;
-}
-
-
-
-
-
-/* input typing */
-
-.input{
-    height: 50px;
-    width: 70%;
-    margin-left: 15%;
-    border-radius: 3rem;
-    background-color: #ffffff;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.input input{
-    height: 30px;
-    padding: 10px;
+  .igChatSidebar {
     width: 100%;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-}
+  }
 
-.input .send{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.input .send label{
-    font-size: 2rem;
-    color: #959aa0;
-    cursor: pointer;
-}
-.input .send label:hover{
-    color: #6a6e73;
-}
-
-.input .send button{
-    padding: 5px 15px;
-    margin-right: 0px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    background-color: #85bbee;
-    color: #f5faff;
-    font-weight: bolder;
-    border-radius: 3rem;
-}
-.input .send button:hover{
-    background-color: #59a7f1;
-    
-}
-
-
-
-/* mobile responsive */
-
-@media only screen and (max-width: 500px){
-    
-    .home .sidebar{
-        flex: none;
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        z-index: 3;
-        /* display: none; */
-    }
-    .home .chat{
-        flex:none;
-        width: 100vw;
-        height: 100vh;
-        position:absolute;
-        z-index: 1;
-    }
-    .chat .backBtn{
-        font-size: 1.8rem;
-        margin-left: 15px;
-    }
-    .chat .backBtn span{
-        color: #bbbcbd;
-    }
-
-    .chat .chatInfo img{
-        margin-left: 0px;
-    }
+  .mobileBackBtn {
+    display: block;
+  }
 }

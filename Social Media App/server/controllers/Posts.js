@@ -1,57 +1,118 @@
-import Post from '../models/Post.js';
-import Stories from '../models/Stories.js';
-import User from '../models/Users.js'
+import prisma from '../db.js';
 
-export const fetchAllPosts = async (req, res) =>{
-    try {
-      const posts = await Post.find().sort({ _id: -1 });
-      return res.status(200).json(posts);
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+// 1. Fetch all posts for the global feed
+export const fetchAllPosts = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        likes: true,
+        comments: {
+          include: {
+            user: {
+              select: { username: true, profilePic: true },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedPosts = posts.map((post) => ({
+      _id: post.id,
+      userId: post.userId,
+      userName: post.userName,
+      userPic: post.userPic,
+      fileType: post.fileType,
+      file: post.file,
+      description: post.description,
+      location: post.location,
+      likes: post.likes.map((like) => like.userId),
+      comments: post.comments.map((c) => [c.user?.username || 'User', c.text]),
+      createdAt: post.createdAt,
+    }));
+
+    return res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error('Fetch Posts Error:', error);
+    return res.status(500).json({ error: error.message });
+  }
 };
 
+// 2. Fetch specific user posts (for Profile & post counter)
 export const fetchUserPosts = async (req, res) => {
   try {
     const { id } = req.params;
-    const userPosts = await Post.find({ userId: id }).sort({ _id: -1 });
-    return res.status(200).json(userPosts);
+    const posts = await prisma.post.findMany({
+      where: { userId: id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        likes: true,
+        comments: {
+          include: {
+            user: {
+              select: { username: true },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedPosts = posts.map((post) => ({
+      _id: post.id,
+      userId: post.userId,
+      userName: post.userName,
+      userPic: post.userPic,
+      fileType: post.fileType,
+      file: post.file,
+      description: post.description,
+      location: post.location,
+      likes: post.likes.map((like) => like.userId),
+      comments: post.comments.map((c) => [c.user?.username || 'User', c.text]),
+      createdAt: post.createdAt,
+    }));
+
+    return res.status(200).json(formattedPosts);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-export const fetchUserName = async (req, res) =>{
+// 3. Fetch user name by ID
+export const fetchUserName = async (req, res) => {
   try {
-      const userId = req.body.userId;
-      const user = await User.findById(userId);
-      console.log(userId);
-      res.status(200).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Server error' });
-    } 
-} 
+    const { userId } = req.body;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
 
-export const fetchUserImg = async (req, res) =>{
+// 4. Fetch user profile image by ID
+export const fetchUserImg = async (req, res) => {
   try {
-    const userId = req.body.userId;
-    const user = await User.findOne({_id: userId});
-    console.log(userId);
-    res.status(200).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Server error' });
-    }
-} 
+    const { userId } = req.body;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePic: true },
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
 
-export const fetchAllStories = async (req, res) =>{
+// 5. Fetch all stories (returns an empty array for now until Story model is migrated)
+export const fetchAllStories = async (req, res) => {
   try {
-    const stories =  await Stories.find();
-
-    res.status(200).json(stories);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Server error' });
-    }
-} 
+    return res.status(200).json([]);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};

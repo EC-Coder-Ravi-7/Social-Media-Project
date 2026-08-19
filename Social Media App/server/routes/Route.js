@@ -1,7 +1,13 @@
 import express from 'express';
-import { login, register } from '../controllers/Auth.js';
+import { login, register, updateProfile } from '../controllers/Auth.js';
 import { createPost } from '../controllers/createPost.js';
-import { fetchAllPosts, fetchAllStories, fetchUserImg, fetchUserName, fetchUserPosts } from '../controllers/Posts.js';
+import { 
+  fetchAllPosts, 
+  fetchAllStories, 
+  fetchUserImg, 
+  fetchUserName, 
+  fetchUserPosts 
+} from '../controllers/Posts.js';
 import { upload } from '../middleware/cloudinaryUpload.js';
 
 const router = express.Router();
@@ -9,6 +15,8 @@ const router = express.Router();
 router.post('/register', register);
 router.post('/login', login);
 router.post('/createPost', upload.single('postFile'), createPost);
+router.post('/updateProfile', upload.single('profilePic'), updateProfile);
+
 router.get('/fetchAllPosts', fetchAllPosts);
 router.get('/fetchUserName', fetchUserName);
 router.get('/fetchUserImg', fetchUserImg);

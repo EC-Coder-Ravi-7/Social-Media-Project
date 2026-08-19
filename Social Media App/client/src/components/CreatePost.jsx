@@ -1,125 +1,155 @@
 import React, { useContext, useState } from 'react';
 import '../styles/CreatePosts.css';
 import { RxCross2 } from 'react-icons/rx';
+import { BsImages } from 'react-icons/bs';
 import { GeneralContext } from '../context/GeneralContextProvider';
+import navProfile from '../images/nav-profile.avif';
 import axios from 'axios';
 
 const CreatePost = () => {
-  const { isCreatPostOpen, setIsCreatePostOpen } = useContext(GeneralContext);
+  const { isCreatePostOpen, setIsCreatePostOpen } = useContext(GeneralContext);
 
-  const [postType, setPostType] = useState('photo');
-  const [postDescription, setPostDescription] = useState('');
-  const [postLocation, setPostLocation] = useState('');
-  const [postFile, setPostFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [fileType, setFileType] = useState('photo');
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePostUpload = async (e) => {
-    if (e) e.preventDefault();
+  const userId = localStorage.getItem('userId');
+  const username = localStorage.getItem('username');
+  const userPic = localStorage.getItem('profilePic');
 
-    if (!postFile) {
-      alert('Please choose a file to upload.');
-      return;
+  if (!isCreatePostOpen) return null;
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+      setFileType(selectedFile.type.startsWith('video') ? 'video' : 'photo');
     }
+  };
 
-    setIsUploading(true);
+  const handleClose = () => {
+    setFile(null);
+    setPreview(null);
+    setDescription('');
+    setLocation('');
+    setIsCreatePostOpen(false);
+  };
+
+  const handleUploadPost = async (e) => {
+    e.preventDefault();
+    if (!file) return alert('Please select an image or video to post');
+
+    setIsLoading(true);
 
     try {
-      // Build FormData payload
       const formData = new FormData();
-      formData.append('postFile', postFile);
-      formData.append('userId', localStorage.getItem('userId'));
-      formData.append('userName', localStorage.getItem('username'));
-      formData.append('userPic', localStorage.getItem('profilePic') || '');
-      formData.append('fileType', postType);
-      formData.append('description', postDescription);
-      formData.append('location', postLocation);
+      formData.append('userId', userId);
+      formData.append('userName', username);
+      formData.append('userPic', userPic || '');
+      formData.append('description', description);
+      formData.append('location', location);
+      formData.append('fileType', fileType);
+      formData.append('postFile', file);
 
       const res = await axios.post('http://localhost:6001/createPost', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       if (res.status === 201 || res.status === 200) {
-        setPostDescription('');
-        setPostLocation('');
-        setPostFile(null);
-        setIsUploading(false);
-        setIsCreatePostOpen(false);
+        setIsLoading(false);
+        handleClose();
         window.location.reload();
       }
     } catch (err) {
-      console.error('Upload Error:', err);
-      alert('Post upload failed. Please try again.');
-      setIsUploading(false);
+      console.error('Post creation error:', err);
+      alert('Failed to upload post. Please try again.');
+      setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className="createPostModalBg"
-      style={isCreatPostOpen ? { display: 'contents' } : { display: 'none' }}
-    >
-      <div className="createPostContainer">
-        <RxCross2 className="closeCreatePost" onClick={() => setIsCreatePostOpen(false)} />
-        <h2 className="createPostTitle">Create post</h2>
-        <hr className="createPostHr" />
+    <div className="igCreatePostOverlay" onClick={handleClose}>
+      <div
+        className="igCreatePostModal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="igModalHeader">
+          <button type="button" className="igModalCloseBtn" onClick={handleClose}>
+            <RxCross2 />
+          </button>
+          <h3>Create new post</h3>
+          <button
+            type="button"
+            className="igModalShareBtn"
+            onClick={handleUploadPost}
+            disabled={!file || isLoading}
+          >
+            {isLoading ? 'Sharing...' : 'Share'}
+          </button>
+        </div>
 
-        <div className="createPostBody">
-          <form onSubmit={handlePostUpload}>
-            <select
-              className="form-select"
-              value={postType}
-              onChange={(e) => setPostType(e.target.value)}
-            >
-              <option value="photo">Photo</option>
-              <option value="video">Video</option>
-            </select>
-
-            <div className="uploadBox">
+        {/* Modal Body */}
+        <div className="igModalContent">
+          {!preview ? (
+            /* Upload Initial Placeholder */
+            <div className="igUploadPlaceholder">
+              <BsImages className="igUploadMediaIcon" />
+              <p>Select photos and videos from your device</p>
+              <label htmlFor="igFileInput" className="igSelectBtn">
+                Select from computer
+              </label>
               <input
+                id="igFileInput"
                 type="file"
-                name="postFile"
-                id="uploadPostFile"
-                accept={postType === 'photo' ? 'image/*' : 'video/*'}
-                onChange={(e) => setPostFile(e.target.files[0])}
-                required
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
               />
             </div>
+          ) : (
+            /* Preview & Details Editor */
+            <div className="igEditorContainer">
+              <div className="igMediaPreviewPane">
+                {fileType === 'photo' ? (
+                  <img src={preview} alt="Post preview" className="igPreviewMedia" />
+                ) : (
+                  <video src={preview} controls className="igPreviewMedia" />
+                )}
+              </div>
 
-            <div className="form-floating mb-3 authFormInputs descriptionInput">
-              <input
-                type="text"
-                className="form-control descriptionInput"
-                id="floatingDescription"
-                placeholder="Description"
-                onChange={(e) => setPostDescription(e.target.value)}
-                value={postDescription}
-                required
-              />
-              <label htmlFor="floatingDescription">Description</label>
+              <div className="igDetailsPane">
+                <div className="igUserRow">
+                  <img
+                    src={userPic && userPic !== 'undefined' && userPic !== '' ? userPic : navProfile}
+                    alt=""
+                    className="igUserAvatar"
+                  />
+                  <span className="igUsername">{username}</span>
+                </div>
+
+                <textarea
+                  className="igCaptionInput"
+                  placeholder="Write a caption..."
+                  rows="4"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+
+                <input
+                  type="text"
+                  className="igLocationInput"
+                  placeholder="Add location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
             </div>
-
-            <div className="form-floating mb-3 authFormInputs postLocation">
-              <input
-                type="text"
-                className="form-control postLocation"
-                id="floatingLocation"
-                placeholder="Location"
-                onChange={(e) => setPostLocation(e.target.value)}
-                value={postLocation}
-              />
-              <label htmlFor="floatingLocation">Location</label>
-            </div>
-
-            {isUploading ? (
-              <button type="button" disabled>
-                Uploading to Cloudinary...
-              </button>
-            ) : (
-              <button type="submit">Upload</button>
-            )}
-          </form>
+          )}
         </div>
       </div>
     </div>

@@ -20,9 +20,6 @@ function App() {
   return (
     <div className="App">
 
-      
-
-
       <Routes>
 
           <Route exact path='/' element={ <AuthProtector><Home/></AuthProtector>}  />

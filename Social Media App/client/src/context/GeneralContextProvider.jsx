@@ -1,50 +1,25 @@
-import React, { createContext, useReducer, useState } from 'react'
-import socketIoClient from 'socket.io-client';
+import React, { createContext, useState } from 'react';
+import io from 'socket.io-client';
 
 export const GeneralContext = createContext();
 
+const socket = io('http://localhost:6001');
 
-const WS = 'http://localhost:6001';
-
-const socket = socketIoClient(WS);
-
-export const GeneralContextProvider = ({children}) => {
-
-    const [isCreatPostOpen, setIsCreatePostOpen] = useState(false);
-    const [isCreateStoryOpen, setIsCreateStoryOpen] = useState(false);
-    const [isNotificationsOpen, setNotificationsOpen] = useState(false);
-
-    const [notifications, setNotifications] = useState([]);
-
-
-    const [chatFirends, setChatFriends] = useState([]);
-   
-
-    const INITIAL_STATE = {
-      chatId: 'null',
-      user: {},
-  };
-
-  const userId = localStorage.getItem('userId');
-
-  const chatReducer = (state, action) => {
-      switch (action.type) {
-          case "CHANGE_USER":
-              return {
-                  user: action.payload,
-                  chatId: userId > action.payload._id ? userId + action.payload._id : action.payload._id + userId
-              }
-          default:
-              return state;
-      }
-  };
-
-  const [state, dispatch] = useReducer(chatReducer, INITIAL_STATE);
-
-
-
+export const GeneralContextProvider = ({ children }) => {
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   return (
-    <GeneralContext.Provider value={{socket, isCreatPostOpen, setIsCreatePostOpen, isCreateStoryOpen, setIsCreateStoryOpen, isNotificationsOpen, setNotificationsOpen, notifications, setNotifications, chatFirends, setChatFriends, chatData:state, dispatch}}>{children}</GeneralContext.Provider>
-  )
-}
+    <GeneralContext.Provider
+      value={{
+        socket,
+        isCreatePostOpen,
+        setIsCreatePostOpen,
+        isNotificationsOpen,
+        setIsNotificationsOpen,
+      }}
+    >
+      {children}
+    </GeneralContext.Provider>
+  );
+};

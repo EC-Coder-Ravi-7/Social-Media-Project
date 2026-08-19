@@ -1,98 +1,84 @@
-.Navbar {
-    display: flex;
-    gap: 0.5rem;
-    width: 25vw;
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 10vh;
-    z-index: 1000;
-    align-items: center;
-    justify-content: space-evenly;
+/* --- Top Frosted Header --- */
+.mobileTopHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
-.btns {
-    width: 30px;
-    height: 30px;
-    color: #777e83;
-    cursor: pointer;
-    transition: color 0.2s ease;
+.mobileTopHeaderInner {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
-.Notifybtn {
-    width: 35px;
-    height: 35px;
+/* --- Bottom Frosted Navigation Bar --- */
+.mobileBottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
-.chatbtn {
-    width: 31px;
-    height: 31px;
-    padding-top: 5px;
+.mobileBottomNavInner {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
-.createPostbtn {
-    padding-top: 3px;
+.bottomIcon {
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
 }
 
-.btns:active,
-.btns:hover {
-    color: #1393f5;
+.bottomIcon:hover {
+  color: #0284c7;
+  transform: scale(1.1);
 }
 
-.Navbar img {
-    width: 31px;
-    height: 31px;
-    border-radius: 50%;
-    border: 2px solid #68caf4;
-    cursor: pointer;
-    object-fit: cover;
+.bottomProfileCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #0284c7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.r-button {
-    height: 3rem;
-    width: 80%;
-    align-self: center;
-    background: linear-gradient(106.23deg, #68caf4, #1393f5 100%);
-}
-
-@media screen and (max-width: 900px) {
-    .Navbar {
-        width: 35vw;
-    }
-}
-
-@media screen and (max-width: 500px) {
-    .Navbar {
-        width: 100%;
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-        z-index: 1000;
-    }
-
-    .btns {
-        width: 28px;
-        height: 28px;
-    }
-
-    .Notifybtn {
-        width: 32px;
-        height: 32px;
-    }
-
-    .chatbtn {
-        width: 28px;
-        height: 28px;
-    }
-
-    .Navbar img {
-        width: 32px;
-        height: 32px;
-    }
+.bottomProfileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

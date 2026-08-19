@@ -1,108 +1,96 @@
-.notificationsModalBg{
-    /* display: none; */
-    position: fixed;
-    z-index: 8;
-    padding-top: 100px;
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
+.igNotifOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2500;
 }
 
-.notificationsContainer{
-    z-index: 999;
-    padding: 1rem;
-    border-radius: 1rem;
-    position: fixed;
-    top: 10vh;
-    right: 1vw;
-    width: 27vw;
-    height: 70vh;
-    max-height: 90vh;
-    background-color: rgba(246, 251, 254, 0.361);
-    backdrop-filter: blur(15px);
-    border: 1px solid #b4b6b8;
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+.igNotifContainer {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: notifPop 0.18s ease-out;
+  margin: 0 16px;
 }
 
-.closenotifications{
-    float: right;
-    position: relative;
-    top: 0vh;
-    right: 0vw;
-    color: rgb(106, 107, 107);
-    cursor: pointer;
-    font-size: 1.2rem;
+@keyframes notifPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.notificationsTitle{
-    font-family: 'Padauk', sans-serif;
-    font-size: 1.5rem;
-    /* padding-bottom: 0.5rem; */
-    margin: 0px;
-    color: rgb(8, 82, 147);
-}
-.notificationsHr{
-    margin: 0;
-    margin-bottom: 1rem;
+.igNotifHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #efefef;
 }
 
-
-.uploadImgBox input{
-    display: none;
+.igNotifHeader h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #262626;
+  margin: 0;
 }
 
-.uploadImgBox label{
-    text-align: center;
-    padding-top: 8vh;
-    color: rgba(8, 82, 147, 0.63);
-    height: fit-content;
-    min-height: 20vh;
-    width: 28vw;
-    border: 1px solid #c0c1c3;
-    cursor: pointer;
-    border-radius: 5px;
+.igNotifCloseIcon {
+  font-size: 20px;
+  color: #8e8e8e;
+  cursor: pointer;
 }
 
-.descriptionInput input{
-    border-color: #c0c1c3;
-    width: 100%;
-}
-.descriptionInput label{
-    color: rgba(8, 82, 147, 0.63);
+.igNotifList {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 10px 16px;
 }
 
-.notificationsBody form{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-}
-.notificationsBody form button{
-    width: 40%;
-    border: none;
-    padding: 8px 0;
-    background-color: rgba(6, 112, 234, 0.479);
-    color: aliceblue;
-    font-weight: 500;
-    border-radius: 0.4rem;
+.igNotifSectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8e8e8e;
+  display: block;
+  margin: 8px 0;
 }
 
-.notificationsBody p{
-    text-align: center;
-    color: #9ca3af;
+.igNotifItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f8fafc;
 }
 
+.igNotifAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 
+.igNotifText p {
+  font-size: 13px;
+  color: #262626;
+  margin: 0;
+}
 
-@media only screen and (max-width: 600px){
-    .notificationsContainer{
-        top: 20vh;
-        left: 5vw;
-        width: 90vw;
-    }
-    .uploadImgBox label{
-        width: 82vw;
-    }
+.igNotifTime {
+  font-size: 11px;
+  color: #8e8e8e;
 }

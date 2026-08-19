@@ -1,234 +1,247 @@
-import Chats from './models/Chats.js';
-import Post from './models/Post.js';
-import Stories from './models/Stories.js';
-import User from './models/Users.js';
+import prisma from './db.js';
 
-const SocketHandler = (socket) => {
-  
-    socket.on('postLiked', async ({userId, postId}) =>{
-        try {
-            await Post.updateOne({_id: postId}, {$addToSet: {likes: userId}});
-            socket.emit("likeUpdated");
-        } catch (error) {
-            console.error('Error liking post:', error);
-            socket.emit('error', {message: 'Error liking post'});
+export const SocketHandler = (io) => {
+  io.on('connection', (socket) => {
+    console.log('User connected to socket:', socket.id);
+
+    // 1. Fetch Profile
+    socket.on('fetch-profile', async ({ _id }) => {
+      try {
+        if (!_id) return;
+
+        const user = await prisma.user.findUnique({
+          where: { id: _id },
+          include: {
+            followedBy: true, // followers
+            following: true,  // following
+          },
+        });
+
+        if (user) {
+          const formattedProfile = {
+            _id: user.id,
+            username: user.username,
+            email: user.email,
+            profilePic: user.profilePic,
+            about: user.about,
+            followers: user.followedBy.map((f) => f.followerId),
+            following: user.following.map((f) => f.followingId),
+          };
+
+          socket.emit('profile-fetched', { profile: formattedProfile });
         }
+      } catch (err) {
+        console.error('Socket fetch-profile error:', err);
+      }
     });
 
-    socket.on('postUnLiked', async ({userId, postId}) =>{
-        try {
-            await Post.updateOne({_id: postId}, {$pull: {likes: userId}});
-            socket.emit("likeUpdated");
-        } catch (error) {
-            console.error('Error unliking post:', error);
-            socket.emit('error', {message: 'Error unliking post'});
-        }
+    // 2. Update Profile
+    socket.on('updateProfile', async ({ userId, profilePic, username, about }) => {
+      try {
+        const updatedUser = await prisma.user.update({
+          where: { id: userId },
+          data: {
+            profilePic: profilePic || undefined,
+            username: username || undefined,
+            about: about || undefined,
+          },
+          include: {
+            followedBy: true,
+            following: true,
+          },
+        });
+
+        const formattedProfile = {
+          _id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          profilePic: updatedUser.profilePic,
+          about: updatedUser.about,
+          followers: updatedUser.followedBy.map((f) => f.followerId),
+          following: updatedUser.following.map((f) => f.followingId),
+        };
+
+        io.emit('profile-fetched', { profile: formattedProfile });
+      } catch (err) {
+        console.error('Socket updateProfile error:', err);
+      }
     });
 
-    socket.on("fetch-profile", async({_id})=>{
-        try {
-            const user = await User.findOne({_id});
-            console.log(user);
-            socket.emit("profile-fetched", {profile: user});
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            socket.emit('error', {message: 'Error fetching profile'});
-        }
+    // 3. Like Post
+    socket.on('postLiked', async ({ userId, postId }) => {
+      try {
+        await prisma.like.upsert({
+          where: {
+            userId_postId: { userId, postId },
+          },
+          update: {},
+          create: { userId, postId },
+        });
+
+        const updatedLikes = await prisma.like.findMany({
+          where: { postId },
+          select: { userId: true },
+        });
+
+        io.emit('post-liked-updated', {
+          postId,
+          likes: updatedLikes.map((l) => l.userId),
+        });
+      } catch (err) {
+        console.error('Socket like error:', err);
+      }
     });
 
-    socket.on('updateProfile', async ({userId, profilePic, username, about})=>{
-        try {
-            const user = await User.updateOne({_id: userId}, {profilePic: profilePic, username: username, about: about});
-            socket.emit("profile-fetched", {profile: user});
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            socket.emit('error', {message: 'Error updating profile'});
-        }
+    // 4. Unlike Post
+    socket.on('postUnLiked', async ({ userId, postId }) => {
+      try {
+        await prisma.like.deleteMany({
+          where: { userId, postId },
+        });
+
+        const updatedLikes = await prisma.like.findMany({
+          where: { postId },
+          select: { userId: true },
+        });
+
+        io.emit('post-liked-updated', {
+          postId,
+          likes: updatedLikes.map((l) => l.userId),
+        });
+      } catch (err) {
+        console.error('Socket unlike error:', err);
+      }
     });
 
-    socket.on('user-search', async({username})=>{
-        try {
-            const user = await User.findOne({username: username});
-            socket.emit('searched-user', {user});
-        } catch (error) {
-            console.error('Error searching user:', error);
-            socket.emit('error', {message: 'Error searching user'});
-        }
+    // 5. Follow User
+    socket.on('followUser', async ({ ownId, followingUserId }) => {
+      try {
+        if (ownId === followingUserId) return;
+
+        await prisma.follow.upsert({
+          where: {
+            followerId_followingId: {
+              followerId: ownId,
+              followingId: followingUserId,
+            },
+          },
+          update: {},
+          create: {
+            followerId: ownId,
+            followingId: followingUserId,
+          },
+        });
+
+        const userFollowing = await prisma.follow.findMany({
+          where: { followerId: ownId },
+          select: { followingId: true },
+        });
+
+        socket.emit('userFollowed', {
+          following: userFollowing.map((f) => f.followingId),
+        });
+      } catch (err) {
+        console.error('Socket follow error:', err);
+      }
     });
 
-    socket.on('followUser', async({ownId, followingUserId})=>{
-        try {
-            await User.updateOne({_id: ownId}, {$addToSet: {following: followingUserId}});
-            await User.updateOne({_id: followingUserId}, {$addToSet: {followers: ownId}});
+    // 6. Unfollow User
+    socket.on('unFollowUser', async ({ ownId, followingUserId }) => {
+      try {
+        await prisma.follow.deleteMany({
+          where: {
+            followerId: ownId,
+            followingId: followingUserId,
+          },
+        });
 
-            const user1 = await User.findOne({_id: ownId});
-            const user2 = await User.findOne({_id: followingUserId});
-            socket.emit('userFollowed', {following: user1.following});
+        const userFollowing = await prisma.follow.findMany({
+          where: { followerId: ownId },
+          select: { followingId: true },
+        });
 
-            if (user2.following.includes(user1._id) && user1.following.includes(user2._id)) {
-                const newChat = new Chats({
-                    _id: user1._id > user2._id ? user1._id + user2._id : user2._id + user1._id
-                });
-
-                const chat = await newChat.save();
-            }
-        } catch (error) {
-            console.error('Error following user:', error);
-            socket.emit('error', {message: 'Error following user'});
-        }
+        socket.emit('userUnFollowed', {
+          following: userFollowing.map((f) => f.followingId),
+        });
+      } catch (err) {
+        console.error('Socket unfollow error:', err);
+      }
     });
 
-    socket.on('unFollowUser', async({ownId, followingUserId})=>{
-        try {
-            await User.updateOne({_id: ownId}, {$pull: {following: followingUserId}});
-            await User.updateOne({_id: followingUserId}, {$pull: {followers: ownId}});
+    // 7. Add Comment
+    socket.on('makeComment', async ({ postId, username, comment }) => {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { username },
+        });
 
-            const user = await User.findOne({_id: ownId});
-            socket.emit('userUnFollowed', {following: user.following});
-        } catch (error) {
-            console.error('Error unfollowing user:', error);
-            socket.emit('error', {message: 'Error unfollowing user'});
-        }
+        if (!user) return;
+
+        await prisma.comment.create({
+          data: {
+            postId,
+            userId: user.id,
+            text: comment,
+          },
+        });
+
+        const comments = await prisma.comment.findMany({
+          where: { postId },
+          include: {
+            user: { select: { username: true } },
+          },
+        });
+
+        io.emit('comment-added', {
+          postId,
+          comments: comments.map((c) => [c.user.username, c.text]),
+        });
+      } catch (err) {
+        console.error('Socket makeComment error:', err);
+      }
     });
 
-    socket.on('makeComment', async({postId, username, comment})=>{
-        try {
-            await Post.updateOne({_id: postId}, { $push: { comments: [username, comment] } });
-        } catch (error) {
-            console.error('Error making comment:', error);
-            socket.emit('error', {message: 'Error making comment'});
-        }
+    // 8. Delete Post
+    socket.on('delete-post', async ({ postId }) => {
+      try {
+        await prisma.post.delete({
+          where: { id: postId },
+        });
+
+        const posts = await prisma.post.findMany({
+          orderBy: { createdAt: 'desc' },
+          include: {
+            likes: true,
+            comments: {
+              include: { user: { select: { username: true } } },
+            },
+          },
+        });
+
+        const formattedPosts = posts.map((post) => ({
+          _id: post.id,
+          userId: post.userId,
+          userName: post.userName,
+          userPic: post.userPic,
+          fileType: post.fileType,
+          file: post.file,
+          description: post.description,
+          location: post.location,
+          likes: post.likes.map((like) => like.userId),
+          comments: post.comments.map((c) => [c.user.username, c.text]),
+          createdAt: post.createdAt,
+        }));
+
+        io.emit('post-deleted', { posts: formattedPosts });
+      } catch (err) {
+        console.error('Socket delete-post error:', err);
+      }
     });
 
-    socket.on('fetch-friends', async ({userId}) =>{
-        try {
-            const userData = await User.findOne({_id: userId});
-
-            function findCommonElements(array1, array2) {
-                return array1.filter(element => array2.includes(element));
-            }
-
-            const friendsList = findCommonElements(userData.following, userData.followers);
-
-            const friendsData = await User.find(
-                { _id: { $in: friendsList } },
-                { _id: 1, username: 1, profilePic: 1 }
-            ).exec();
-
-            socket.emit("friends-data-fetched", {friendsData});
-        } catch (error) {
-            console.error('Error fetching friends:', error);
-            socket.emit('error', {message: 'Error fetching friends'});
-        }
+    socket.on('disconnect', () => {
+      console.log('User disconnected from socket:', socket.id);
     });
-
-    socket.on('fetch-messages', async ({chatId}) =>{
-        try {
-            const chat = await Chats.findOne({_id: chatId});
-            await socket.join(chatId);
-            await socket.emit('messages-updated', {chat: chat});
-        } catch (error) {
-            console.error('Error fetching messages:', error);
-            socket.emit('error', {message: 'Error fetching messages'});
-        }
-    });
-
-    socket.on('update-messages', async ({ chatId }) => {
-        try {
-            const chat = await Chats.findOne({ _id: chatId });
-            console.log('updating messages');
-            socket.emit('messages-updated', { chat });
-        } catch (error) {
-            console.error('Error updating messages:', error);
-            socket.emit('error', {message: 'Error updating messages'});
-        }
-    });
-
-    socket.on('new-message', async ({ chatId, id, text, file, senderId, date }) => {
-        try {
-            await Chats.findOneAndUpdate(
-                { _id: chatId },
-                { $addToSet: { messages: { id, text, file, senderId, date } } },
-                { new: true }
-            );
-
-            const chat = await Chats.findOne({ _id: chatId });
-            console.log(chat);
-            socket.emit('messages-updated', { chat });
-            socket.broadcast.to(chatId).emit('message-from-user');
-        } catch (error) {
-            console.error('Error adding new message:', error);
-            socket.emit('error', {message: 'Error adding new message'});
-        }
-    });
-
-    socket.on('chat-user-searched', async ({ownId, username})=>{
-        try {
-            const user = await User.findOne({username: username});
-            if (user) {
-                if (user.followers.includes(ownId) && user.following.includes(ownId)) {
-                    socket.emit('searched-chat-user', {user});
-                } else {
-                    socket.emit('no-searched-chat-user');
-                }
-            } else {
-                socket.emit('no-searched-chat-user');
-            }
-        } catch (error) {
-            console.error('Error searching chat user:', error);
-            socket.emit('error', {message: 'Error searching chat user'});
-        }
-    });
-
-    socket.on('fetch-all-posts', async()=>{
-        try {
-            const posts = await Post.find();
-            socket.emit('all-posts-fetched', {posts});
-        } catch (error) {
-            console.error('Error fetching all posts:', error);
-            socket.emit('error', {message: 'Error fetching all posts'});
-        }
-    });
-
-    socket.on('delete-post', async ({postId}) =>{
-        try {
-            await Post.deleteOne({_id: postId});
-            const posts = await Post.find();
-            socket.emit('post-deleted', {posts});
-        } catch (error) {
-            console.error('Error deleting post:', error);
-            socket.emit('error', {message: 'Error deleting post'});
-        }
-    });
-
-    socket.on('create-new-story', async({userId, username, userPic, fileType, file, text})=>{
-        try {
-            const newStory = new Stories({userId, username, userPic, fileType, file, text});
-            await newStory.save();
-        } catch (error) {
-            console.error('Error creating new story:', error);
-            socket.emit('error', {message: 'Error creating new story'});
-        }
-    });
-
-    socket.on('fetch-stories', async()=>{
-        try {
-            const stories = await Stories.find();
-            socket.emit('stories-fetched', {stories});
-        } catch (error) {
-            console.error('Error fetching stories:', error);
-            socket.emit('error', {message: 'Error fetching stories'});
-        }
-    });
-
-    socket.on('story-played', async ({storyId, userId})=>{
-        try {
-            await Stories.updateOne({_id: storyId}, {$addToSet: {viewers: userId}});
-        } catch (error) {
-            console.error('Error updating story viewers:', error);
-            socket.emit('error', {message: 'Error updating story viewers'});
-        }
-    });
-}
+  });
+};
 
 export default SocketHandler;
