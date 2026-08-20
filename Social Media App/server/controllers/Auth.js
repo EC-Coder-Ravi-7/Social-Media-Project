@@ -55,23 +55,31 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password?.trim();
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: 'Please provide both email and password' });
+    }
 
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
-      return res.status(400).json({ msg: 'User does not exist' });
+      return res.status(400).json({ msg: 'Invalid credentials. User does not exist.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: 'Invalid credentials. Password incorrect.' });
     }
 
-    const jwtSecret = process.env.JWT_SECRET || 'thisIsTheSceretCodeForTheJWTToken';
-    const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.JWT_SECRET || 'secretkey',
+      { expiresIn: '7d' }
+    );
 
     return res.status(200).json({
       token,
@@ -83,9 +91,9 @@ export const login = async (req, res) => {
         about: user.about,
       },
     });
-  } catch (error) {
-    console.error('Login Error:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+  } catch (err) {
+    console.error('Login error in controller:', err);
+    return res.status(500).json({ msg: 'Server error during login' });
   }
 };
 

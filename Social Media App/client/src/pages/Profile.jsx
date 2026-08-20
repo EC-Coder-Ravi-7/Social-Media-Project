@@ -1,44 +1,43 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../styles/ProfilePage.css';
-import '../styles/Posts.css';
-import { AiOutlineHeart, AiTwotoneHeart } from 'react-icons/ai';
-import { BiCommentDetail } from 'react-icons/bi';
-import { FaGlobeAmericas } from 'react-icons/fa';
-import HomeLogo from '../components/HomeLogo';
 import Navbar from '../components/Navbar';
 import navProfile from '../images/nav-profile.avif';
 import { AuthenticationContext } from '../context/AuthenticationContextProvider';
 import { GeneralContext } from '../context/GeneralContextProvider';
 import { useParams } from 'react-router-dom';
+import { BsGrid3X3, BsHeartFill, BsChatFill, BsGearWide, BsPlus } from 'react-icons/bs';
+import { RxCross2 } from 'react-icons/rx';
 import axios from 'axios';
 
 const Profile = () => {
   const { logout } = useContext(AuthenticationContext);
   const { socket } = useContext(GeneralContext);
   const { id } = useParams();
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('userId') || localStorage.getItem('_id');
   const isOwnProfile = id === userId;
 
   const [userProfile, setUserProfile] = useState(null);
   const [posts, setPosts] = useState([]);
-  
-  // Edit State
-  const [updateProfilePicFile, setUpdateProfilePicFile] = useState(null);
-  const [updateProfileUsername, setUpdateProfileUsername] = useState('');
-  const [updateProfileAbout, setUpdateProfileAbout] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [comment, setComment] = useState('');
+  const [selectedPostModal, setSelectedPostModal] = useState(null);
 
-  // 1. Fetch Profile Details
+  // Edit Modal State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPicFile, setEditPicFile] = useState(null);
+  const [editUsername, setEditUsername] = useState('');
+  const [editFullName, setEditFullName] = useState('');
+  const [editAbout, setEditAbout] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch Profile via Socket
   useEffect(() => {
     if (!socket) return;
 
     const handleProfileFetched = ({ profile }) => {
       if (profile) {
         setUserProfile(profile);
-        setUpdateProfileUsername(profile.username || '');
-        setUpdateProfileAbout(profile.about || '');
+        setEditUsername(profile.username || '');
+        setEditFullName(profile.fullName || profile.username || '');
+        setEditAbout(profile.about || '');
       }
     };
 
@@ -50,13 +49,13 @@ const Profile = () => {
     };
   }, [socket, id]);
 
-  // 2. Fetch User Posts
+  // Fetch All Posts
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:6001/fetchAllPosts');
-      setPosts(response.data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+      const res = await axios.get('http://localhost:6001/fetchAllPosts');
+      setPosts(res.data || []);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
     }
   };
 
@@ -64,46 +63,19 @@ const Profile = () => {
     fetchPosts();
   }, []);
 
-  // 3. Socket Event Handlers
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleUserFollowed = ({ following }) => {
-      localStorage.setItem('following', JSON.stringify(following));
-    };
-
-    const handleUserUnFollowed = ({ following }) => {
-      localStorage.setItem('following', JSON.stringify(following));
-    };
-
-    const handlePostDeleted = ({ posts: updatedPosts }) => {
-      setPosts(updatedPosts || []);
-    };
-
-    socket.on('userFollowed', handleUserFollowed);
-    socket.on('userUnFollowed', handleUserUnFollowed);
-    socket.on('post-deleted', handlePostDeleted);
-
-    return () => {
-      socket.off('userFollowed', handleUserFollowed);
-      socket.off('userUnFollowed', handleUserUnFollowed);
-      socket.off('post-deleted', handlePostDeleted);
-    };
-  }, [socket]);
-
-  // 4. Update Profile with Cloudinary Device Upload
-  const handleUpdate = async (e) => {
+  // Update Profile with Cloudinary
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
       const formData = new FormData();
       formData.append('userId', userId);
-      formData.append('username', updateProfileUsername);
-      formData.append('about', updateProfileAbout);
-
-      if (updateProfilePicFile) {
-        formData.append('profilePic', updateProfilePicFile);
+      formData.append('username', editUsername);
+      formData.append('fullName', editFullName);
+      formData.append('about', editAbout);
+      if (editPicFile) {
+        formData.append('profilePic', editPicFile);
       }
 
       const res = await axios.post('http://localhost:6001/updateProfile', formData, {
@@ -112,63 +84,43 @@ const Profile = () => {
 
       if (res.status === 200) {
         const updated = res.data.user;
-        if (updated.profilePic) {
-          localStorage.setItem('profilePic', updated.profilePic);
-        }
+        if (updated.profilePic) localStorage.setItem('profilePic', updated.profilePic);
         localStorage.setItem('username', updated.username);
-
-        // Update local state and notify socket
-        setUserProfile((prev) => ({ ...prev, ...updated }));
-        socket.emit('updateProfile', {
-          userId: updated.id,
-          profilePic: updated.profilePic,
-          username: updated.username,
-          about: updated.about,
-        });
-
-        setIsUpdating(false);
+        localStorage.setItem('fullName', editFullName);
+        setUserProfile((prev) => ({ ...prev, ...updated, fullName: editFullName }));
+        setIsEditing(false);
         setIsSaving(false);
         window.location.reload();
       }
     } catch (err) {
-      console.error('Update profile error:', err);
-      alert('Failed to update profile. Please try again.');
+      console.error('Failed to update profile:', err);
+      alert('Error updating profile');
       setIsSaving(false);
     }
   };
 
-  const handleLike = (uId, postId) => {
-    socket.emit('postLiked', { userId: uId, postId });
-  };
-
-  const handleUnLike = (uId, postId) => {
-    socket.emit('postUnLiked', { userId: uId, postId });
-  };
-
-  const handleFollow = (targetUserId) => {
-    socket.emit('followUser', {
-      ownId: userId,
-      followingUserId: targetUserId,
-    });
-  };
-
-  const handleUnFollow = (targetUserId) => {
-    socket.emit('unFollowUser', {
-      ownId: userId,
-      followingUserId: targetUserId,
-    });
-  };
-
-  const handleComment = (postId, username) => {
-    socket.emit('makeComment', { postId, username, comment });
-    setComment('');
-  };
-
   const handleDeletePost = (postId) => {
+    if (!socket) return;
     socket.emit('delete-post', { postId });
+    setSelectedPostModal(null);
+    setPosts((prev) => prev.filter((p) => (p.id || p._id) !== postId));
   };
 
-  const userPosts = posts.filter((post) => post.userId === id);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'RECENTLY';
+    const date = new Date(dateString);
+    return isNaN(date.getTime())
+      ? 'RECENTLY'
+      : date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }).toUpperCase();
+  };
+
+  const userPosts = posts.filter(
+  (p) => String(p.userId) === String(id) || String(p.authorId) === String(id)
+);
   const followingList = localStorage.getItem('following') || '';
   const isFollowing = followingList.includes(id);
 
@@ -180,228 +132,237 @@ const Profile = () => {
       : navProfile;
 
   const displayUsername =
-    userProfile?.username || (isOwnProfile ? localStorage.getItem('username') : 'User');
+    userProfile?.username || (isOwnProfile ? localStorage.getItem('username') : 'username');
+  
+  const displayFullName =
+    userProfile?.fullName || localStorage.getItem('fullName') || (isOwnProfile ? 'Ravi Shankar Gupta' : displayUsername);
 
   const displayAbout =
-    userProfile?.about || (isOwnProfile ? 'Welcome to my profile' : 'No bio yet');
+    userProfile?.about || (isOwnProfile ? 'Hey there! I am using SocialX.' : 'No bio yet.');
 
   return (
-    <div className="profilePage">
-      <HomeLogo />
+    <div className="igProfileRoot">
       <Navbar />
 
-      {/* Profile Info Display Card */}
-      <div className="profileCard" style={isUpdating ? { display: 'none' } : { display: 'flex' }}>
-        <img src={displayPic} alt="Profile" className="profileHeaderImg" />
-        <h4>{displayUsername}</h4>
-        <p>{displayAbout}</p>
-
-        <div className="profileDetailCounts">
-          <div className="postsCount">
-            <p>Posts</p>
-            <p><strong>{userPosts.length}</strong></p>
-          </div>
-          <div className="followersCount">
-            <p>Followers</p>
-            <p><strong>{userProfile?.followers ? userProfile.followers.length : 0}</strong></p>
-          </div>
-          <div className="followingCounts">
-            <p>Following</p>
-            <p><strong>{userProfile?.following ? userProfile.following.length : 0}</strong></p>
-          </div>
-        </div>
-
-        <div className="profileControls">
-          {isOwnProfile ? (
-            <div className="profileControlBtns">
-              <button className="btn btn-outline-danger" onClick={async () => await logout()}>
-                Logout
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setIsUpdating(true)}
-              >
-                Edit Profile
-              </button>
+      <main className="igProfileMain">
+        {/* Top Profile Header Section */}
+        <header className="igProfileHeader">
+          <div className="igAvatarColumn">
+            <div className="igAvatarWrapper">
+              <img src={displayPic} alt="Profile avatar" className="igAvatarImg" />
             </div>
-          ) : (
-            <div className="profileControlBtns">
-              {isFollowing ? (
+          </div>
+
+          <section className="igDetailsColumn">
+            {/* Row 1: Username & Gear / Edit */}
+            <div className="igUsernameRow">
+              <h2 className="igProfileUsername">{displayUsername}</h2>
+              {isOwnProfile && <BsGearWide className="igSettingsIcon" onClick={() => setIsEditing(true)} />}
+            </div>
+
+            {/* Row 2: Action Buttons */}
+            <div className="igProfileActionsBar">
+              {isOwnProfile ? (
                 <>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleUnFollow(id)}
-                    style={{ backgroundColor: 'rgb(224, 42, 42)' }}
-                  >
-                    Unfollow
+                  <button className="igActionBtn" onClick={() => setIsEditing(true)}>
+                    Edit profile
                   </button>
-                  <button className="btn btn-secondary">Message</button>
+                  <button className="igActionBtn" onClick={async () => await logout()}>
+                    Logout
+                  </button>
                 </>
               ) : (
-                <button className="btn btn-primary" onClick={() => handleFollow(id)}>
-                  Follow
-                </button>
+                <>
+                  {isFollowing ? (
+                    <button className="igActionBtn">Following</button>
+                  ) : (
+                    <button className="igActionBtn igActionBtnPrimary">Follow</button>
+                  )}
+                  <button className="igActionBtn">Message</button>
+                </>
               )}
+            </div>
+
+            {/* Row 3: Stats Counter */}
+            <ul className="igStatsRow">
+              <li>
+                <span className="igStatCount">{userPosts.length}</span> posts
+              </li>
+              <li>
+                <span className="igStatCount">{userProfile?.followers?.length || 0}</span> followers
+              </li>
+              <li>
+                <span className="igStatCount">{userProfile?.following?.length || 0}</span> following
+              </li>
+            </ul>
+
+            {/* Row 4: Full Name & Bio */}
+            <div className="igBioSection">
+              <span className="igFullName">{displayFullName}</span>
+              <p className="igBioText">{displayAbout}</p>
+            </div>
+          </section>
+        </header>
+
+        {/* Highlights Section with "New / Add" circle */}
+        <div className="igHighlightsContainer">
+          <div className="igHighlightItem">
+            <div className="igHighlightCircle">
+              <img src={displayPic} alt="Highlight" />
+            </div>
+            <span className="igHighlightTitle">Highlights</span>
+          </div>
+
+          {isOwnProfile && (
+            <div className="igHighlightItem" onClick={() => alert('Add story to highlights!')}>
+              <div className="igHighlightAddCircle">
+                <BsPlus className="igAddPlusIcon" />
+              </div>
+              <span className="igHighlightTitle">New</span>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Profile Edit Card (With Device File Upload) */}
-      <div
-        className="profileEditCard"
-        style={!isUpdating ? { display: 'none' } : { display: 'flex' }}
-      >
-        <form onSubmit={handleUpdate}>
-          <div className="mb-3">
-            <label htmlFor="editProfilePicFile" className="form-label">
-              Choose Profile Picture from Device
-            </label>
-            <input
-              type="file"
-              className="form-control"
-              id="editProfilePicFile"
-              accept="image/*"
-              onChange={(e) => setUpdateProfilePicFile(e.target.files[0])}
-            />
+        {/* Navigation Tabs - ONLY POSTS */}
+        <div className="igProfileTabsNav">
+          <div className="igTabItem active">
+            <BsGrid3X3 />
+            <span>POSTS</span>
           </div>
-          <div className="mb-3">
-            <label htmlFor="editUsername" className="form-label">
-              Username
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="editUsername"
-              onChange={(e) => setUpdateProfileUsername(e.target.value)}
-              value={updateProfileUsername}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="editAbout" className="form-label">
-              About Bio
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="editAbout"
-              onChange={(e) => setUpdateProfileAbout(e.target.value)}
-              value={updateProfileAbout}
-            />
-          </div>
-          <div className="d-flex gap-2">
-            <button className="btn btn-primary" type="submit" disabled={isSaving}>
-              {isSaving ? 'Uploading to Cloudinary...' : 'Save Changes'}
-            </button>
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={() => setIsUpdating(false)}
-              disabled={isSaving}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
 
-      {/* Posts Section */}
-      <div className="profilePostsContainer">
-        {userPosts.length === 0 ? (
-          <p style={{ textAlign: 'center', marginTop: '20px', color: '#777' }}>
-            No posts shared yet.
-          </p>
-        ) : (
-          userPosts.map((post) => (
-            <div className="Post" key={post._id}>
-              <div className="postTop">
-                <div className="postTopDetails">
-                  <img src={post.userPic || navProfile} alt="" className="userpic" />
-                  <h3 className="usernameTop">{post.userName}</h3>
-                </div>
-                {post.userId === userId && (
+        {/* 3-Column Instagram Post Grid */}
+        <section className="igGridSection">
+          {userPosts.length === 0 ? (
+            <div className="igEmptyGrid">
+              <div className="igEmptyGridIcon">📷</div>
+              <h3>No Posts Yet</h3>
+              <p>When you share photos and videos, they will appear on your profile.</p>
+            </div>
+          ) : (
+            <div className="igPostGrid">
+              {userPosts.map((post) => (
+                <article
+                  className="igPostGridItem"
+                  key={post.id || post._id}
+                  onClick={() => setSelectedPostModal(post)}
+                >
+                  {post.fileType === 'video' ? (
+                    <video src={post.file} className="igPostGridMedia" />
+                  ) : (
+                    <img src={post.file} alt="" className="igPostGridMedia" />
+                  )}
+                  <div className="igPostGridHover">
+                    <span>
+                      <BsHeartFill /> {post.likes?.length || 0}
+                    </span>
+                    <span>
+                      <BsChatFill /> {post.comments?.length || 0}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="igModalOverlay" onClick={() => setIsEditing(false)}>
+          <div className="igModalDialog" onClick={(e) => e.stopPropagation()}>
+            <div className="igModalDialogHeader">
+              <h3>Edit profile</h3>
+              <RxCross2 className="igModalDialogClose" onClick={() => setIsEditing(false)} />
+            </div>
+            <form onSubmit={handleUpdateProfile} className="igEditProfileForm">
+              <div className="igFormRow">
+                <label>Change photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditPicFile(e.target.files[0])}
+                />
+              </div>
+              <div className="igFormRow">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => setEditUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="igFormRow">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={editFullName}
+                  onChange={(e) => setEditFullName(e.target.value)}
+                  placeholder="e.g. Ravi Shankar Gupta"
+                />
+              </div>
+              <div className="igFormRow">
+                <label>Bio</label>
+                <textarea
+                  rows="3"
+                  value={editAbout}
+                  onChange={(e) => setEditAbout(e.target.value)}
+                  placeholder="Bio details..."
+                />
+              </div>
+              <button type="submit" className="igFormSubmitBtn" disabled={isSaving}>
+                {isSaving ? 'Submitting...' : 'Submit'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Full-view Post Detail Modal */}
+      {selectedPostModal && (
+        <div className="igModalOverlay" onClick={() => setSelectedPostModal(null)}>
+          <div className="igPostDetailDialog" onClick={(e) => e.stopPropagation()}>
+            <button className="igPostDetailClose" onClick={() => setSelectedPostModal(null)}>
+              <RxCross2 />
+            </button>
+            <div className="igDetailMediaWrapper">
+              {selectedPostModal.fileType === 'video' ? (
+                <video src={selectedPostModal.file} controls autoPlay />
+              ) : (
+                <img src={selectedPostModal.file} alt="" />
+              )}
+            </div>
+            <div className="igDetailSidebar">
+              <div className="igDetailAuthorHeader">
+                <img
+                  src={selectedPostModal.userPic || navProfile}
+                  alt=""
+                  className="igDetailAuthorAvatar"
+                />
+                <span className="igDetailAuthorName">{selectedPostModal.userName}</span>
+                {isOwnProfile && (
                   <button
-                    className="btn btn-danger deletePost"
-                    onClick={() => handleDeletePost(post._id)}
+                    className="igDetailDeleteBtn"
+                    onClick={() => handleDeletePost(selectedPostModal.id || selectedPostModal._id)}
                   >
                     Delete
                   </button>
                 )}
               </div>
 
-              {post.fileType === 'photo' ? (
-                <img src={post.file} className="postimg" alt="Post content" />
-              ) : (
-                <video id="videoPlayer" className="postimg" controls autoPlay muted>
-                  <source src={post.file} />
-                </video>
-              )}
-
-              <div className="postReact">
-                <div className="supliconcol">
-                  {post.likes?.includes(userId) ? (
-                    <AiTwotoneHeart
-                      className="support reactbtn"
-                      style={{ color: '#e63946' }}
-                      onClick={() => handleUnLike(userId, post._id)}
-                    />
-                  ) : (
-                    <AiOutlineHeart
-                      className="support reactbtn"
-                      onClick={() => handleLike(userId, post._id)}
-                    />
-                  )}
-                  <label className="supportCount">{post.likes?.length || 0}</label>
-                </div>
-                <BiCommentDetail className="comment reactbtn" />
-                {post.location && (
-                  <div className="placeiconcol">
-                    <FaGlobeAmericas className="placeicon reactbtn" />
-                    <label className="place">{post.location}</label>
-                  </div>
-                )}
-              </div>
-
-              <div className="detail">
-                <div className="descdataWithBtn">
-                  <span style={{ fontWeight: 'bold' }}>{post.userName}</span> &nbsp;
-                  <span>{post.description}</span>
-                </div>
-              </div>
-
-              <div className="commentsContainer">
-                <div className="makeComment">
-                  <input
-                    type="text"
-                    placeholder="Add a comment..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                  />
-                  <button
-                    className="btn btn-primary"
-                    disabled={comment.trim().length === 0}
-                    onClick={() => handleComment(post._id, localStorage.getItem('username'))}
-                  >
-                    Post
-                  </button>
-                </div>
-                <div className="commentsBody">
-                  <div className="comments">
-                    {post.comments?.map((c, index) => (
-                      <p key={index}>
-                        <b>{Array.isArray(c) ? c[0] : c.username}</b>{' '}
-                        {Array.isArray(c) ? c[1] : c.text || c.comment}
-                      </p>
-                    ))}
-                  </div>
-                </div>
+              <div className="igDetailCaptionArea">
+                <p>
+                  <b>{selectedPostModal.userName}</b> {selectedPostModal.description}
+                </p>
+                <time className="igDetailDate">
+                  {formatDate(selectedPostModal.createdAt)}
+                </time>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

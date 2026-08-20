@@ -1,100 +1,116 @@
 import React, { useContext, useState } from 'react';
-import '../styles/CreatePosts.css'
-import { GeneralContext } from '../context/GeneralContextProvider';
+import '../styles/CreateStory.css';
 import { RxCross2 } from 'react-icons/rx';
-import {ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import {storage} from '../firebase.js';
-import { v4 as uuidv4 } from 'uuid';
+import { BsImages } from 'react-icons/bs';
+import { GeneralContext } from '../context/GeneralContextProvider';
+import axios from 'axios';
 
 const CreateStory = () => {
+  const { isCreateStoryOpen, setIsCreateStoryOpen } = useContext(GeneralContext);
 
-    const {socket, isCreateStoryOpen, setIsCreateStoryOpen} = useContext(GeneralContext);
+  const [storyFile, setStoryFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [fileType, setFileType] = useState('photo');
+  const [isLoading, setIsLoading] = useState(false);
 
-    const [storyType, setStoryType] = useState('photo');
-    const [storyDescription, setStoryDescription] = useState('');
-    const [storyFile, setStoryFile] = useState(null);
- 
-    const [uploadProgress, setUploadProgress] = useState();
+  const userId = localStorage.getItem('userId') || localStorage.getItem('_id') || '';
+  const username = localStorage.getItem('username') || 'User';
+  const userPic = localStorage.getItem('profilePic') || '';
 
-    if (uploadProgress === 100){
-        setStoryDescription('');
-        setStoryFile(null);
-        setIsCreateStoryOpen(false);
-        setUploadProgress();
+  if (!isCreateStoryOpen) return null;
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setStoryFile(file);
+      setPreview(URL.createObjectURL(file));
+      setFileType(file.type.startsWith('video') ? 'video' : 'photo');
     }
+  };
 
+  const handleClose = () => {
+    setStoryFile(null);
+    setPreview(null);
+    setIsCreateStoryOpen(false);
+  };
 
-    const handleStoryUpload = async (e) =>{
-        e.preventDefault();
-        
-        const storageRef = ref(storage, uuidv4());
+  const handleUploadStory = async (e) => {
+    e.preventDefault();
+    if (!storyFile) return alert('Please select a photo or video for your story.');
 
-        const uploadTask = uploadBytesResumable(storageRef, storyFile);
+    setIsLoading(true);
 
-        uploadTask.on('state_changed', 
-        (snapshot) => {
-            setUploadProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100); 
-        }, 
-        (error) => {
-            console.log(error);
-        }, 
-        () => {
-            getDownloadURL(uploadTask.snapshot.ref).then( async (downloadURL) => {
-            console.log('File available at', downloadURL);
+    try {
+      const formData = new FormData();
+      formData.append('userId', userId);
+      formData.append('userName', username);
+      formData.append('userPic', userPic);
+      formData.append('fileType', fileType);
+      formData.append('storyFile', storyFile);
 
-            try{
-                 
-                await socket.emit('create-new-story', {userId: localStorage.getItem('userId'), username: localStorage.getItem('username'), userPic: localStorage.getItem('profilePic'), fileType: storyType, file: downloadURL, text: storyDescription});
-                setIsCreateStoryOpen(false);
-                setStoryDescription('');
-                setStoryFile(null);
-                setIsCreateStoryOpen(false);
-                setUploadProgress();
+      const res = await axios.post('http://localhost:6001/createStory', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-            }catch(err){
-                console.log(err);
-            }
-
-
-            });
-        }
-        );
+      if (res.status === 200 || res.status === 201) {
+        setIsLoading(false);
+        handleClose();
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Story upload failed:', err.response?.data || err.message);
+      alert(err.response?.data?.error || 'Failed to upload story. Please check server logs.');
+      setIsLoading(false);
     }
+  };
 
   return (
-    <div className="createPostModalBg" style={isCreateStoryOpen? {display: 'contents'} : {display: 'none'}} >
-            <div className="createPostContainer">
-               
-                <RxCross2 className='closeCreatePost' onClick={()=> setIsCreateStoryOpen(false)} />
-                <h2 className="createPostTitle">Add new story</h2>
-                <hr className="createPostHr" />
-                
-                <div className="createPostBody">
-                    <form>
-
-                    <select className="form-select" aria-label="Select Post Type" onChange={(e)=> setStoryType(e.target.value)}  >
-                        <option defaultValue='photo'>Choose post type</option>
-                        <option value="photo">Photo</option>
-                        <option value="video">Video</option>
-                    </select>
-
-                        <div className="uploadBox">
-                            <input type="file" name="PostFile" id="uploadPostFile" onChange={(e)=> setStoryFile(e.target.files[0])} />
-                        </div>
-                        <div className="form-floating mb-3 authFormInputs descriptionInput">
-                            <input type="text" className="form-control descriptionInput" id="floatingDescription" placeholder="Description" onChange={(e)=> setStoryDescription(e.target.value)} value={storyDescription}  /> 
-                            <label htmlFor="floatingDescription">Text</label>
-                        </div>
-                        {uploadProgress ?
-                            <button disabled>Uploading... {Math.round(uploadProgress)}%</button>
-                        :
-                        <button onClick={handleStoryUpload}>Upload</button>
-                        }
-                    </form>
-                </div>
-            </div>
+    <div className="igStoryModalOverlay" onClick={handleClose}>
+      <div className="igStoryModalDialog" onClick={(e) => e.stopPropagation()}>
+        <div className="igStoryModalHeader">
+          <button type="button" className="igStoryCloseBtn" onClick={handleClose}>
+            <RxCross2 />
+          </button>
+          <h3>Add to story</h3>
+          <button
+            type="button"
+            className="igStoryShareBtn"
+            onClick={handleUploadStory}
+            disabled={!storyFile || isLoading}
+          >
+            {isLoading ? 'Sharing...' : 'Share'}
+          </button>
         </div>
-  )
-}
 
-export default CreateStory
+        <div className="igStoryModalBody">
+          {!preview ? (
+            <div className="igStoryPickerArea">
+              <BsImages className="igStoryPickerIcon" />
+              <p>Select photo or video for your story</p>
+              <label htmlFor="storyDeviceInput" className="igStorySelectBtn">
+                Select from device
+              </label>
+              <input
+                id="storyDeviceInput"
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+            </div>
+          ) : (
+            <div className="igStoryPreviewContainer">
+              {fileType === 'photo' ? (
+                <img src={preview} alt="Story preview" className="igStoryPreviewMedia" />
+              ) : (
+                <video src={preview} controls autoPlay className="igStoryPreviewMedia" />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreateStory;

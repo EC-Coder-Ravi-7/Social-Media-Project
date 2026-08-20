@@ -1,6 +1,8 @@
 import express from 'express';
 import { login, register, updateProfile } from '../controllers/Auth.js';
 import { createPost } from '../controllers/createPost.js';
+import { fetchAllStories } from '../controllers/fetchAllStories.js';
+import { createStory } from '../controllers/createStory.js';
 import { 
   fetchAllPosts, 
   fetchAllStories, 
@@ -16,6 +18,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/createPost', upload.single('postFile'), createPost);
 router.post('/updateProfile', upload.single('profilePic'), updateProfile);
+router.post('/createStory', upload.single('storyFile'), createStory);
 
 router.get('/fetchAllPosts', fetchAllPosts);
 router.get('/fetchUserName', fetchUserName);

@@ -101,7 +101,7 @@ const CreatePost = () => {
               <BsImages className="igUploadMediaIcon" />
               <p>Select photos and videos from your device</p>
               <label htmlFor="igFileInput" className="igSelectBtn">
-                Select from computer
+                Select from device
               </label>
               <input
                 id="igFileInput"

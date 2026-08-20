@@ -85,3 +85,13 @@ model Follow {
   // Composite primary key: Prevents duplicate follow records
   @@id([followerId, followingId])
 }
+
+model Story {
+  id        String   @id @default(uuid())
+  userId    String
+  userName  String
+  userPic   String?  @default("")
+  file      String
+  fileType  String   @default("photo")
+  createdAt DateTime @default(now())
+}

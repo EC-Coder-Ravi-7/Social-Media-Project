@@ -7,6 +7,7 @@ const socket = io('http://localhost:6001');
 
 export const GeneralContextProvider = ({ children }) => {
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [isCreateStoryOpen, setIsCreateStoryOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   return (
@@ -15,6 +16,8 @@ export const GeneralContextProvider = ({ children }) => {
         socket,
         isCreatePostOpen,
         setIsCreatePostOpen,
+        isCreateStoryOpen,
+        setIsCreateStoryOpen,
         isNotificationsOpen,
         setIsNotificationsOpen,
       }}
