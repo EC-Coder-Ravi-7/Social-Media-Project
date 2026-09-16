@@ -871,3 +871,38 @@
         min-height: 240px;
     }
 }
+
+
+/* Password wrapper & eye icon styling */
+.passwordInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.passwordInputWrapper input.form-control {
+    padding-right: 45px !important;
+}
+
+.passwordToggleBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    border: none !important;
+    color: #64748b !important;
+    font-size: 1.15rem;
+    cursor: pointer;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.passwordToggleBtn:hover {
+    color: rgb(0, 108, 197) !important;
+}

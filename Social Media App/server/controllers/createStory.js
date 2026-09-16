@@ -6,10 +6,20 @@ export const createStory = async (req, res) => {
     const file = req.file ? req.file.path : null;
 
     if (!file) {
-      return res.status(400).json({ error: 'No media file received. Make sure file upload is working.' });
+      return res.status(400).json({ error: 'No media file received' });
     }
 
-    const newStory = await prisma.story.create({
+    // Safely resolve model name
+    const storyModel = prisma.story || prisma.stories || prisma.Story;
+
+    if (!storyModel) {
+      console.error('Prisma models loaded:', Object.keys(prisma));
+      return res.status(500).json({
+        error: 'Prisma Story model missing. Run npx prisma generate in the server directory and restart.',
+      });
+    }
+
+    const newStory = await storyModel.create({
       data: {
         userId: userId || '',
         userName: userName || 'User',

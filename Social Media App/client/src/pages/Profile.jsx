@@ -119,8 +119,8 @@ const Profile = () => {
   };
 
   const userPosts = posts.filter(
-  (p) => String(p.userId) === String(id) || String(p.authorId) === String(id)
-);
+    (p) => String(p.userId) === String(id) || String(p.authorId) === String(id)
+  );
   const followingList = localStorage.getItem('following') || '';
   const isFollowing = followingList.includes(id);
 
@@ -133,9 +133,12 @@ const Profile = () => {
 
   const displayUsername =
     userProfile?.username || (isOwnProfile ? localStorage.getItem('username') : 'username');
-  
+
+  // Dynamic Full Name display: profile > localStorage > username
   const displayFullName =
-    userProfile?.fullName || localStorage.getItem('fullName') || (isOwnProfile ? 'Ravi Shankar Gupta' : displayUsername);
+    userProfile?.fullName ||
+    (isOwnProfile ? localStorage.getItem('fullName') : null) ||
+    displayUsername;
 
   const displayAbout =
     userProfile?.about || (isOwnProfile ? 'Hey there! I am using SocialX.' : 'No bio yet.');
@@ -204,7 +207,7 @@ const Profile = () => {
           </section>
         </header>
 
-        {/* Highlights Section with "New / Add" circle */}
+        {/* Highlights Section */}
         <div className="igHighlightsContainer">
           <div className="igHighlightItem">
             <div className="igHighlightCircle">
@@ -299,7 +302,7 @@ const Profile = () => {
                   type="text"
                   value={editFullName}
                   onChange={(e) => setEditFullName(e.target.value)}
-                  placeholder="e.g. Ravi Shankar Gupta"
+                  placeholder="e.g. John Doe"
                 />
               </div>
               <div className="igFormRow">

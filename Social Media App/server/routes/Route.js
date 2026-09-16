@@ -10,9 +10,12 @@ import {
   fetchUserPosts 
 } from '../controllers/Posts.js';
 import { upload } from '../middleware/cloudinaryUpload.js';
+import { resetPassword } from '../controllers/forgotPassword.js';
+
 
 const router = express.Router();
 
+router.post('/resetPassword', resetPassword);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/createPost', upload.single('postFile'), createPost);

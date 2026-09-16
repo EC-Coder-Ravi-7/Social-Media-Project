@@ -12,23 +12,25 @@ export const AuthenticationContextProvider = ({ children }) => {
 
   const navigate = useNavigate();
 
-  const login = async () => {
+  const login = async (credentials) => {
     setLoginError('');
     try {
-      const res = await axios.post('http://localhost:6001/login', {
-        email,
-        password,
-      });
+      // Support login via passed credentials object or state
+      const payload = credentials || { email, password };
+
+      const res = await axios.post('http://localhost:6001/login', payload);
 
       if (res.data.token) {
         const user = res.data.user;
-        
-        // Save all required keys
+
+        // Save authenticated user details
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('userId', user.id);
         localStorage.setItem('_id', user.id);
         localStorage.setItem('username', user.username);
         localStorage.setItem('userName', user.username);
+        // Save the dynamic full name from DB
+        localStorage.setItem('fullName', user.fullName || user.username);
         localStorage.setItem('email', user.email);
         localStorage.setItem('profilePic', user.profilePic || '');
 
@@ -36,32 +38,35 @@ export const AuthenticationContextProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      if (err.response && err.response.data && err.response.data.msg) {
-        setLoginError(err.response.data.msg);
-        alert(err.response.data.msg);
+      if (err.response && err.response.data && (err.response.data.msg || err.response.data.error)) {
+        const message = err.response.data.msg || err.response.data.error;
+        setLoginError(message);
+        alert(message);
       } else {
         alert('Login failed. Please check your credentials.');
       }
     }
-};
+  };
 
-  const register = async () => {
+  const register = async (regData) => {
     try {
-      const res = await axios.post('http://localhost:6001/register', {
+      const payload = regData || {
         username,
         email,
         password,
         profilePic: '',
         about: 'Hey there! I am using SocialX.',
-      });
+      };
+
+      const res = await axios.post('http://localhost:6001/register', payload);
 
       if (res.status === 201 || res.status === 200) {
         alert('Registered successfully! Please sign in.');
       }
     } catch (err) {
       console.error('Register error:', err);
-      if (err.response && err.response.data && err.response.data.msg) {
-        alert(err.response.data.msg);
+      if (err.response && err.response.data && (err.response.data.msg || err.response.data.error)) {
+        alert(err.response.data.msg || err.response.data.error);
       } else {
         alert('Server unreachable. Ensure backend is running on port 6001.');
       }

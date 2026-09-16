@@ -1,36 +1,93 @@
-import React, { useContext } from 'react'
-import { AuthenticationContext } from '../context/AuthenticationContextProvider'
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const Register = ({setIsLoginBox}) => {
+const Register = ({ setIsLoginBox }) => {
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const {setUsername, setEmail, setPassword, register} = useContext(AuthenticationContext);
-
-  const handleRegister = async (e) =>{
+  const handleRegister = async (e) => {
     e.preventDefault();
-
-    await register()
-  }
+    try {
+      const res = await axios.post('http://localhost:6001/register', {
+        fullName: fullName.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        password: password.trim(),
+      });
+      alert('Registration successful! Please login.');
+      setIsLoginBox(true);
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Registration failed');
+    }
+  };
 
   return (
-    <form className="authForm">
-        <h2>Register</h2>
-        <div className="form-floating mb-3 authFormInputs">
-            <input type="text" className="form-control" id="floatingInput" placeholder="username" onChange={(e)=> setUsername(e.target.value)} />
-            <label htmlFor="floatingInput">Username</label>
-        </div>
-        <div className="form-floating mb-3 authFormInputs">
-            <input type="email" className="form-control" id="floatingEmail" placeholder="name@example.com" onChange={(e)=> setEmail(e.target.value)} />
-            <label htmlFor="floatingInput">Email address</label>
-        </div>
-        <div className="form-floating mb-3 authFormInputs">
-            <input type="password" className="form-control" id="floatingPassword" placeholder="Password" onChange={(e)=> setPassword(e.target.value)} /> 
-            <label htmlFor="floatingPassword">Password</label>
-        </div>
-        <button className="btn btn-primary" onClick={handleRegister}>Sign up</button>
+    <form className="authForm" onSubmit={handleRegister}>
+      <h2>Register</h2>
 
-        <p>Already registered? <span onClick={()=> setIsLoginBox(true)}>Login</span></p>
+      <div className="form-floating authFormInputs">
+        <input
+          type="text"
+          className="form-control"
+          id="floatingFullName"
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
+        <label htmlFor="floatingFullName">Full name</label>
+      </div>
+
+      <div className="form-floating authFormInputs">
+        <input
+          type="text"
+          className="form-control"
+          id="floatingRegUser"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <label htmlFor="floatingRegUser">Username</label>
+      </div>
+
+      <div className="form-floating authFormInputs">
+        <input
+          type="email"
+          className="form-control"
+          id="floatingRegEmail"
+          placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label htmlFor="floatingRegEmail">Email address</label>
+      </div>
+
+      <div className="form-floating authFormInputs">
+        <input
+          type="password"
+          className="form-control"
+          id="floatingRegPassword"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <label htmlFor="floatingRegPassword">Password</label>
+      </div>
+
+      <button type="submit" className="btn btn-primary">
+        Sign up
+      </button>
+
+      <p>
+        Already have an account? <span onClick={() => setIsLoginBox(true)}>Login</span>
+      </p>
     </form>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

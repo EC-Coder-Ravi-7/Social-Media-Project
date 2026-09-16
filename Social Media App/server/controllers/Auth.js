@@ -41,6 +41,7 @@ export const register = async (req, res) => {
       message: 'User registered successfully',
       user: {
         id: user.id,
+        fullName: user.fullName || user.username,
         username: user.username,
         email: user.email,
         profilePic: user.profilePic,
@@ -55,24 +56,30 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const email = req.body.email?.trim().toLowerCase();
+    const identifier = (req.body.email || req.body.username || req.body.identifier || '').trim();
     const password = req.body.password?.trim();
 
-    if (!email || !password) {
-      return res.status(400).json({ msg: 'Please provide both email and password' });
+    if (!identifier || !password) {
+      return res.status(400).json({ msg: 'Please provide email/username and password' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    // Find by either email OR username (case-insensitive)
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: identifier, mode: 'insensitive' } },
+          { username: { equals: identifier, mode: 'insensitive' } },
+        ],
+      },
     });
 
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid credentials. User does not exist.' });
+      return res.status(400).json({ msg: 'User does not exist with this username or email' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials. Password incorrect.' });
+      return res.status(400).json({ msg: 'Incorrect password' });
     }
 
     const token = jwt.sign(
@@ -92,7 +99,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Login error in controller:', err);
+    console.error('Login error:', err);
     return res.status(500).json({ msg: 'Server error during login' });
   }
 };
@@ -115,6 +122,7 @@ export const updateProfile = async (req, res) => {
       message: 'Profile updated successfully',
       user: {
         id: updatedUser.id,
+        fullName: user.fullName || user.username,
         username: updatedUser.username,
         email: updatedUser.email,
         profilePic: updatedUser.profilePic,
