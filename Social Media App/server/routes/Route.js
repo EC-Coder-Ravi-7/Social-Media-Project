@@ -4,8 +4,7 @@ import { createPost } from '../controllers/createPost.js';
 import { fetchAllStories } from '../controllers/fetchAllStories.js';
 import { createStory } from '../controllers/createStory.js';
 import { 
-  fetchAllPosts, 
-  fetchAllStories, 
+  fetchAllPosts,
   fetchUserImg, 
   fetchUserName, 
   fetchUserPosts 

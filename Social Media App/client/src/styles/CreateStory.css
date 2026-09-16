@@ -1,0 +1,114 @@
+.igStoryModalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.igStoryModalDialog {
+    width: 420px;
+    max-width: 90vw;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.igStoryModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.igStoryModalHeader h3 {
+    margin: 0;
+}
+
+.igStoryCloseBtn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.igStoryShareBtn {
+    border: none;
+    background: #0095f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.igStoryShareBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.igStoryModalBody {
+    padding: 20px;
+}
+
+.igStoryPickerArea {
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.igStoryPickerIcon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+
+.igStorySelectBtn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 9px 18px;
+    background: #0095f6;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.igStoryPreviewContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 60vh;
+    overflow: hidden;
+}
+
+.igStoryPreviewMedia {
+    max-width: 100%;
+    max-height: 60vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+@media screen and (max-width: 500px) {
+    .igStoryModalDialog {
+        width: 95vw;
+        max-width: 95vw;
+    }
+
+    .igStoryModalBody {
+        padding: 12px;
+    }
+
+    .igStoryPickerArea {
+        min-height: 220px;
+    }
+}
