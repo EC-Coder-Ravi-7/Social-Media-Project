@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import navProfile from '../images/nav-profile.avif';
 import { AuthenticationContext } from '../context/AuthenticationContextProvider';
 import { GeneralContext } from '../context/GeneralContextProvider';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { BsGrid3X3, BsHeartFill, BsChatFill, BsGearWide, BsPlus } from 'react-icons/bs';
 import { RxCross2 } from 'react-icons/rx';
 import axios from 'axios';
@@ -13,12 +13,18 @@ const Profile = () => {
   const { logout } = useContext(AuthenticationContext);
   const { socket } = useContext(GeneralContext);
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const userId = localStorage.getItem('userId') || localStorage.getItem('_id');
   const isOwnProfile = id === userId;
 
   const [userProfile, setUserProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [selectedPostModal, setSelectedPostModal] = useState(null);
+
+  // Follow states
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
 
   // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
@@ -38,6 +44,10 @@ const Profile = () => {
         setEditUsername(profile.username || '');
         setEditFullName(profile.fullName || profile.username || '');
         setEditAbout(profile.about || '');
+
+        const followers = profile.followers || [];
+        setFollowersCount(followers.length);
+        setIsFollowing(followers.includes(userId));
       }
     };
 
@@ -47,7 +57,7 @@ const Profile = () => {
     return () => {
       socket.off('profile-fetched', handleProfileFetched);
     };
-  }, [socket, id]);
+  }, [socket, id, userId]);
 
   // Fetch All Posts
   const fetchPosts = async () => {
@@ -62,6 +72,39 @@ const Profile = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // Follow / Unfollow Toggle Handler
+  const handleToggleFollow = async () => {
+    try {
+      const res = await axios.post('http://localhost:6001/toggleFollow', {
+        currentUserId: userId,
+        targetUserId: id,
+      });
+
+      if (res.status === 200) {
+        setIsFollowing(res.data.isFollowing);
+        setFollowersCount(res.data.followersCount);
+
+        localStorage.setItem('following', JSON.stringify(res.data.following || []));
+
+        if (res.data.isFollowing && socket) {
+          socket.emit('send-notification', {
+            targetUserId: id,
+            senderName: localStorage.getItem('username') || 'Someone',
+            userPic: localStorage.getItem('profilePic') || '',
+            action: 'started following you',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle follow:', err);
+    }
+  };
+
+  // Direct Message Navigation
+  const handleDirectMessage = () => {
+    navigate(`/chat?userId=${id}`);
+  };
 
   // Update Profile with Cloudinary
   const handleUpdateProfile = async (e) => {
@@ -121,8 +164,6 @@ const Profile = () => {
   const userPosts = posts.filter(
     (p) => String(p.userId) === String(id) || String(p.authorId) === String(id)
   );
-  const followingList = localStorage.getItem('following') || '';
-  const isFollowing = followingList.includes(id);
 
   const displayPic =
     userProfile?.profilePic && userProfile.profilePic !== ''
@@ -134,7 +175,6 @@ const Profile = () => {
   const displayUsername =
     userProfile?.username || (isOwnProfile ? localStorage.getItem('username') : 'username');
 
-  // Dynamic Full Name display: profile > localStorage > username
   const displayFullName =
     userProfile?.fullName ||
     (isOwnProfile ? localStorage.getItem('fullName') : null) ||
@@ -176,12 +216,15 @@ const Profile = () => {
                 </>
               ) : (
                 <>
-                  {isFollowing ? (
-                    <button className="igActionBtn">Following</button>
-                  ) : (
-                    <button className="igActionBtn igActionBtnPrimary">Follow</button>
-                  )}
-                  <button className="igActionBtn">Message</button>
+                  <button
+                    className={`igActionBtn ${isFollowing ? '' : 'igActionBtnPrimary'}`}
+                    onClick={handleToggleFollow}
+                  >
+                    {isFollowing ? 'Following' : 'Follow'}
+                  </button>
+                  <button className="igActionBtn" onClick={handleDirectMessage}>
+                    Message
+                  </button>
                 </>
               )}
             </div>
@@ -192,7 +235,7 @@ const Profile = () => {
                 <span className="igStatCount">{userPosts.length}</span> posts
               </li>
               <li>
-                <span className="igStatCount">{userProfile?.followers?.length || 0}</span> followers
+                <span className="igStatCount">{followersCount}</span> followers
               </li>
               <li>
                 <span className="igStatCount">{userProfile?.following?.length || 0}</span> following
@@ -226,7 +269,7 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Navigation Tabs - ONLY POSTS */}
+        {/* Navigation Tabs */}
         <div className="igProfileTabsNav">
           <div className="igTabItem active">
             <BsGrid3X3 />

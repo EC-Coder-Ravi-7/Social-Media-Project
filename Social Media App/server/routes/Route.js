@@ -11,6 +11,7 @@ import {
 } from '../controllers/Posts.js';
 import { upload } from '../middleware/cloudinaryUpload.js';
 import { resetPassword } from '../controllers/forgotPassword.js';
+import { toggleFollowUser } from '../controllers/userActions.js';
 
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.post('/login', login);
 router.post('/createPost', upload.single('postFile'), createPost);
 router.post('/updateProfile', upload.single('profilePic'), updateProfile);
 router.post('/createStory', upload.single('storyFile'), createStory);
+router.post('/togtoggleFollowUsergle', toggleFollowUser);
 
 router.get('/fetchAllPosts', fetchAllPosts);
 router.get('/fetchUserName', fetchUserName);
