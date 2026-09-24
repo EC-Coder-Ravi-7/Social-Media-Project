@@ -1,16 +1,34 @@
 import prisma from '../db.js';
 
-// 1. Fetch all posts for the global feed
 export const fetchAllPosts = async (req, res) => {
   try {
+    const limit = Math.min(Number(req.query.limit) || 20, 50);
+
     const posts = await prisma.post.findMany({
+      take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
-        likes: true,
+      select: {
+        id: true,
+        userId: true,
+        userName: true,
+        userPic: true,
+        fileType: true,
+        file: true,
+        description: true,
+        location: true,
+        createdAt: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
         comments: {
-          include: {
+          orderBy: { createdAt: 'asc' },
+          take: 10,
+          select: {
+            text: true,
             user: {
-              select: { username: true, profilePic: true },
+              select: { username: true },
             },
           },
         },
@@ -38,17 +56,35 @@ export const fetchAllPosts = async (req, res) => {
   }
 };
 
-// 2. Fetch specific user posts (for Profile & post counter)
 export const fetchUserPosts = async (req, res) => {
   try {
     const { id } = req.params;
+    const limit = Math.min(Number(req.query.limit) || 20, 50);
+
     const posts = await prisma.post.findMany({
       where: { userId: id },
+      take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
-        likes: true,
+      select: {
+        id: true,
+        userId: true,
+        userName: true,
+        userPic: true,
+        fileType: true,
+        file: true,
+        description: true,
+        location: true,
+        createdAt: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
         comments: {
-          include: {
+          orderBy: { createdAt: 'asc' },
+          take: 10,
+          select: {
+            text: true,
             user: {
               select: { username: true },
             },
@@ -77,14 +113,19 @@ export const fetchUserPosts = async (req, res) => {
   }
 };
 
-// 3. Fetch user name by ID
 export const fetchUserName = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.body?.userId || req.query?.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { username: true },
     });
+
     return res.status(200).json(user);
   } catch (error) {
     console.error(error);
@@ -92,14 +133,19 @@ export const fetchUserName = async (req, res) => {
   }
 };
 
-// 4. Fetch user profile image by ID
 export const fetchUserImg = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.body?.userId || req.query?.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { profilePic: true },
     });
+
     return res.status(200).json(user);
   } catch (error) {
     console.error(error);
@@ -107,10 +153,23 @@ export const fetchUserImg = async (req, res) => {
   }
 };
 
-// 5. Fetch all stories (returns an empty array for now until Story model is migrated)
 export const fetchAllStories = async (req, res) => {
   try {
-    return res.status(200).json([]);
+    const stories = await prisma.story.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      select: {
+        id: true,
+        userId: true,
+        userName: true,
+        userPic: true,
+        file: true,
+        fileType: true,
+        createdAt: true,
+      },
+    });
+
+    return res.status(200).json(stories);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Server error' });
