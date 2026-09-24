@@ -1,4 +1,5 @@
 import prisma from '../db.js';
+import { addNotificationJob } from '../queues/notificationQueue.js';
 
 export const toggleFollowUser = async (req, res) => {
   try {
@@ -49,6 +50,12 @@ export const toggleFollowUser = async (req, res) => {
     await prisma.user.update({
       where: { id: currentUserId },
       data: { following: updatedFollowing },
+    });
+
+    await addNotificationJob('FOLLOW_NOTIFICATION', {
+      followerId: userId,
+      followerUsername: user.username,
+      targetUserId: targetId,
     });
 
     return res.status(200).json({

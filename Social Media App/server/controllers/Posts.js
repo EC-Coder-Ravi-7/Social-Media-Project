@@ -2,10 +2,15 @@ import prisma from '../db.js';
 
 export const fetchAllPosts = async (req, res) => {
   try {
-    const limit = Math.min(Number(req.query.limit) || 20, 50);
+    const limit = Math.min(Number(req.query.limit) || 10, 50);
+    const { cursor } = req.query;
 
     const posts = await prisma.post.findMany({
-      take: limit,
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -24,7 +29,7 @@ export const fetchAllPosts = async (req, res) => {
         },
         comments: {
           orderBy: { createdAt: 'asc' },
-          take: 10,
+          take: 5,
           select: {
             text: true,
             user: {
@@ -34,6 +39,12 @@ export const fetchAllPosts = async (req, res) => {
         },
       },
     });
+
+    let nextCursor = null;
+    if (posts.length > limit) {
+      const nextItem = posts.pop();
+      nextCursor = nextItem.id;
+    }
 
     const formattedPosts = posts.map((post) => ({
       _id: post.id,
@@ -49,6 +60,16 @@ export const fetchAllPosts = async (req, res) => {
       createdAt: post.createdAt,
     }));
 
+    // If client requested pagination specifically, send metadata envelope
+    if (req.query.cursor !== undefined || req.query.limit !== undefined) {
+      return res.status(200).json({
+        posts: formattedPosts,
+        nextCursor,
+        hasMore: Boolean(nextCursor),
+      });
+    }
+
+    // Default fallback: return direct array for existing React components
     return res.status(200).json(formattedPosts);
   } catch (error) {
     console.error('Fetch Posts Error:', error);
@@ -59,11 +80,16 @@ export const fetchAllPosts = async (req, res) => {
 export const fetchUserPosts = async (req, res) => {
   try {
     const { id } = req.params;
-    const limit = Math.min(Number(req.query.limit) || 20, 50);
+    const limit = Math.min(Number(req.query.limit) || 10, 50);
+    const { cursor } = req.query;
 
     const posts = await prisma.post.findMany({
       where: { userId: id },
-      take: limit,
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -82,7 +108,7 @@ export const fetchUserPosts = async (req, res) => {
         },
         comments: {
           orderBy: { createdAt: 'asc' },
-          take: 10,
+          take: 5,
           select: {
             text: true,
             user: {
@@ -92,6 +118,12 @@ export const fetchUserPosts = async (req, res) => {
         },
       },
     });
+
+    let nextCursor = null;
+    if (posts.length > limit) {
+      const nextItem = posts.pop();
+      nextCursor = nextItem.id;
+    }
 
     const formattedPosts = posts.map((post) => ({
       _id: post.id,
@@ -106,6 +138,14 @@ export const fetchUserPosts = async (req, res) => {
       comments: post.comments.map((c) => [c.user?.username || 'User', c.text]),
       createdAt: post.createdAt,
     }));
+
+    if (req.query.cursor !== undefined || req.query.limit !== undefined) {
+      return res.status(200).json({
+        posts: formattedPosts,
+        nextCursor,
+        hasMore: Boolean(nextCursor),
+      });
+    }
 
     return res.status(200).json(formattedPosts);
   } catch (error) {
