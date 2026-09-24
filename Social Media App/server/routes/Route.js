@@ -12,22 +12,32 @@ import {
 import { upload } from '../middleware/cloudinaryUpload.js';
 import { resetPassword } from '../controllers/forgotPassword.js';
 import { toggleFollowUser } from '../controllers/userActions.js';
-
+import { checkCache } from '../middleware/cache.js';
 
 const router = express.Router();
 
+// Write / Mutation Routes (No caching)
 router.post('/resetPassword', resetPassword);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/createPost', upload.single('postFile'), createPost);
 router.post('/updateProfile', upload.single('profilePic'), updateProfile);
 router.post('/createStory', upload.single('storyFile'), createStory);
-router.post('/togtoggleFollowUsergle', toggleFollowUser);
+router.post('/toggleFollowUser', toggleFollowUser);
 
-router.get('/fetchAllPosts', fetchAllPosts);
+// Cached Read Routes (Cache-Aside pattern)
+// 1. All Posts feed (Cached for 60 seconds)
+router.get('/fetchAllPosts', checkCache(60), fetchAllPosts);
+router.get('/posts', checkCache(60), fetchAllPosts);
+
+// 2. Active Stories (Cached for 60 seconds)
+router.get('/fetchAllStories', checkCache(60), fetchAllStories);
+
+// 3. User specific posts (Cached for 120 seconds per user id)
+router.get('/fetchUserPosts/:id', checkCache(120), fetchUserPosts);
+
+// 4. User profile info
 router.get('/fetchUserName', fetchUserName);
 router.get('/fetchUserImg', fetchUserImg);
-router.get('/fetchAllStories', fetchAllStories);
-router.get('/fetchUserPosts/:id', fetchUserPosts);
 
 export default router;

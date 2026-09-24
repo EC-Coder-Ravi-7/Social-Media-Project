@@ -1,4 +1,5 @@
 import prisma from '../db.js';
+import { invalidateCache } from '../middleware/cache.js';
 
 export const createPost = async (req, res) => {
   try {
@@ -20,6 +21,12 @@ export const createPost = async (req, res) => {
         location: location || '',
       },
     });
+
+    await invalidateCache([
+      'cache:/fetchAllPosts*',
+      'cache:/posts*',
+      `cache:/fetchUserPosts/${userId}*`,
+    ]);
 
     return res.status(201).json(post);
   } catch (error) {

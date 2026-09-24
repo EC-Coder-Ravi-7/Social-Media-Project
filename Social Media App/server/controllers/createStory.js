@@ -1,4 +1,5 @@
 import prisma from '../db.js';
+import { invalidateCache } from '../middleware/cache.js';
 
 export const createStory = async (req, res) => {
   try {
@@ -9,7 +10,6 @@ export const createStory = async (req, res) => {
       return res.status(400).json({ error: 'No media file received' });
     }
 
-    // Safely resolve model name
     const storyModel = prisma.story || prisma.stories || prisma.Story;
 
     if (!storyModel) {
@@ -28,6 +28,8 @@ export const createStory = async (req, res) => {
         fileType: fileType || 'photo',
       },
     });
+
+    await invalidateCache(['cache:/fetchAllStories*']);
 
     return res.status(201).json(newStory);
   } catch (error) {
