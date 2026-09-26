@@ -29,6 +29,15 @@ export const toggleFollowUser = async (req, res) => {
 
     const isFollowing = currentFollowers.includes(currentUserId);
 
+    // Deterministic key: follow:followerId:targetUserId:dayTimestamp
+    const deduplicationKey = `follow:${userId}:${targetId}:${Math.floor(Date.now() / 60000)}`;
+
+    await addNotificationJob('FOLLOW_NOTIFICATION', {
+      followerId: userId,
+      followerUsername: user.username,
+      targetUserId: targetId,
+    }, deduplicationKey);
+
     let updatedFollowers;
     let updatedFollowing;
 
