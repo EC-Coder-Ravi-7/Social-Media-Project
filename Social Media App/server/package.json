@@ -4,9 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
@@ -20,7 +22,7 @@
     "express": "^4.21.2",
     "expressjs": "^1.0.1",
     "gridfs-stream": "^1.1.1",
-    "helmet": "^8.0.0",
+    "helmet": "^8.3.0",
     "http": "^0.0.1-security",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
@@ -32,11 +34,14 @@
     "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.23.0",
     "prisma": "^7.9.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "autocannon": "^8.0.0",
-    "nodemon": "^3.1.9"
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.3.0"
   },
   "allowScripts": {
     "@prisma/engines@7.9.1": true,

@@ -13,30 +13,28 @@ import { upload } from '../middleware/cloudinaryUpload.js';
 import { resetPassword } from '../controllers/forgotPassword.js';
 import { toggleFollowUser } from '../controllers/userActions.js';
 import { checkCache } from '../middleware/cache.js';
+import { rateLimiter } from '../middleware/rateLimiter.js';
+import { validateBody } from '../middleware/validate.js';
+import { registerSchema, loginSchema } from '../validation/schemas.js';
 
 const router = express.Router();
 
-// Write / Mutation Routes (No caching)
-router.post('/resetPassword', resetPassword);
-router.post('/register', register);
-router.post('/login', login);
-router.post('/createPost', upload.single('postFile'), createPost);
-router.post('/updateProfile', upload.single('profilePic'), updateProfile);
-router.post('/createStory', upload.single('storyFile'), createStory);
-router.post('/toggleFollowUser', toggleFollowUser);
+const authLimiter = rateLimiter({ windowInSeconds: 60, maxRequests: 5, keyPrefix: 'auth_rl' });
+const writeLimiter = rateLimiter({ windowInSeconds: 60, maxRequests: 30, keyPrefix: 'write_rl' });
 
-// Cached Read Routes (Cache-Aside pattern)
-// 1. All Posts feed (Cached for 60 seconds)
+router.post('/register', authLimiter, validateBody(registerSchema), register);
+router.post('/login', authLimiter, validateBody(loginSchema), login);
+router.post('/resetPassword', authLimiter, resetPassword);
+
+router.post('/createPost', writeLimiter, upload.single('postFile'), createPost);
+router.post('/updateProfile', writeLimiter, upload.single('profilePic'), updateProfile);
+router.post('/createStory', writeLimiter, upload.single('storyFile'), createStory);
+router.post('/toggleFollowUser', writeLimiter, toggleFollowUser);
+
 router.get('/fetchAllPosts', checkCache(60), fetchAllPosts);
 router.get('/posts', checkCache(60), fetchAllPosts);
-
-// 2. Active Stories (Cached for 60 seconds)
 router.get('/fetchAllStories', checkCache(60), fetchAllStories);
-
-// 3. User specific posts (Cached for 120 seconds per user id)
 router.get('/fetchUserPosts/:id', checkCache(120), fetchUserPosts);
-
-// 4. User profile info
 router.get('/fetchUserName', fetchUserName);
 router.get('/fetchUserImg', fetchUserImg);
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { Server } from 'socket.io';
@@ -6,7 +7,6 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { initNotificationWorker } from './workers/notificationWorker.js';
 
 dotenv.config();
 
@@ -14,22 +14,40 @@ import authRoutes from './routes/Route.js';
 import SocketHandler from './SocketHandler.js';
 import redis from './redis.js';
 import prisma, { pool } from './db.js';
+import { initNotificationWorker } from './workers/notificationWorker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(express.json());
-app.use(bodyParser.json({ limit: '30mb', extended: true }));
-app.use(bodyParser.urlencoded({ limit: '30mb', extended: true }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Blocked by CORS policy'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   })
 );
+
+app.use(express.json({ limit: '10mb' }));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use('/', authRoutes);
 
@@ -37,7 +55,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
 });
@@ -49,7 +67,6 @@ const PORT = process.env.PORT || 6001;
 
 server.listen(PORT, async () => {
   console.log(`🚀 Server running @ http://localhost:${PORT}`);
-
   try {
     const pingResponse = await redis.ping();
     console.log(`📡 [Redis] Initial Ping: ${pingResponse}`);
@@ -62,10 +79,9 @@ process.on('SIGINT', async () => {
   console.log('\n🛑 Gracefully shutting down server...');
   try {
     await redis.quit();
-    console.log('✅ [Redis] Connection closed.');
     await prisma.$disconnect();
     await pool.end();
-    console.log('✅ [Database] Connection pool closed.');
+    console.log('✅ Connections closed.');
   } catch (err) {
     console.error('❌ [Shutdown Error]:', err.message);
   }
