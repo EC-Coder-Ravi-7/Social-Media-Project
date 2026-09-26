@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Local Redis Service (optional fallback for local containerized dev)
+  redis:
+    image: redis:alpine
+    container_name: socialx-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  # Express Backend API
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: socialx-backend
+    ports:
+      - "6001:6001"
+    env_file:
+      - ./server/.env
+    environment:
+      - PORT=6001
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # React Frontend Client
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: socialx-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  redis_data:
