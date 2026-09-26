@@ -15,6 +15,8 @@ import SocketHandler from './SocketHandler.js';
 import redis from './redis.js';
 import prisma, { pool } from './db.js';
 import { initNotificationWorker } from './workers/notificationWorker.js';
+import morgan from 'morgan';
+import logger from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +47,14 @@ app.use(
   })
 );
 
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms', {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  })
+);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -66,12 +76,12 @@ initNotificationWorker(io);
 const PORT = process.env.PORT || 6001;
 
 server.listen(PORT, async () => {
-  console.log(`🚀 Server running @ http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on port ${PORT}`);
   try {
     const pingResponse = await redis.ping();
-    console.log(`📡 [Redis] Initial Ping: ${pingResponse}`);
+    logger.info(`📡 [Redis] Initial Ping: ${pingResponse}`);
   } catch (err) {
-    console.error('❌ [Redis] Ping failed:', err.message);
+    logger.error(`❌ [Redis] Ping failed: ${err.message}`);
   }
 });
 

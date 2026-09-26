@@ -4,6 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
   },
   "jest": {
@@ -28,13 +30,14 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.13.1",
     "mongoose": "^8.10.1",
-    "morgan": "^1.10.0",
+    "morgan": "^1.12.1",
     "multer": "^1.4.4",
     "multer-gridfs-storage": "^5.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.23.0",
     "prisma": "^7.9.1",
     "socket.io": "^4.8.1",
+    "winston": "^3.19.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
