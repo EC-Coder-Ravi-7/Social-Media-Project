@@ -7,6 +7,7 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 
 dotenv.config();
 
@@ -15,7 +16,6 @@ import SocketHandler from './SocketHandler.js';
 import redis from './redis.js';
 import prisma, { pool } from './db.js';
 import { initNotificationWorker } from './workers/notificationWorker.js';
-import morgan from 'morgan';
 import logger from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -85,15 +85,32 @@ server.listen(PORT, async () => {
   }
 });
 
-process.on('SIGINT', async () => {
-  console.log('\n🛑 Gracefully shutting down server...');
-  try {
-    await redis.quit();
-    await prisma.$disconnect();
-    await pool.end();
-    console.log('✅ Connections closed.');
-  } catch (err) {
-    console.error('❌ [Shutdown Error]:', err.message);
-  }
-  process.exit(0);
-});
+const gracefulShutdown = async (signal) => {
+  logger.info(`🛑 Received ${signal}. Initiating graceful shutdown...`);
+
+  server.close(async () => {
+    logger.info('HTTP and Socket.IO server stopped receiving requests.');
+
+    try {
+      await redis.quit();
+      logger.info('✅ [Redis] Connection closed.');
+
+      await prisma.$disconnect();
+      await pool.end();
+      logger.info('✅ [Database] Connections pooled and released cleanly.');
+
+      process.exit(0);
+    } catch (err) {
+      logger.error(`❌ Error during shutdown: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+  setTimeout(() => {
+    logger.error('Forcefully terminating process: timeout exceeded.');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

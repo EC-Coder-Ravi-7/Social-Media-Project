@@ -1,0 +1,22 @@
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-09-26 23:11:22"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-09-26 23:11:22"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 2964.047 ms","timestamp":"2026-09-26 23:15:12"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 58.212 ms","timestamp":"2026-09-26 23:15:12"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 3760.834 ms","timestamp":"2026-09-26 23:15:13"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 59.644 ms","timestamp":"2026-09-26 23:15:13"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 36.522 ms","timestamp":"2026-09-26 23:15:14"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 34.448 ms","timestamp":"2026-09-26 23:15:14"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 34.265 ms","timestamp":"2026-09-26 23:15:18"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 35.514 ms","timestamp":"2026-09-26 23:15:18"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 32.589 ms","timestamp":"2026-09-26 23:15:20"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 34.527 ms","timestamp":"2026-09-26 23:15:20"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 33.236 ms","timestamp":"2026-09-26 23:15:20"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 34.302 ms","timestamp":"2026-09-26 23:15:20"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-09-26 23:16:35"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-09-26 23:16:35"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-09-26 23:16:55"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-09-26 23:16:55"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-09-26 23:17:17"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-09-26 23:17:18"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-09-26 23:17:33"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-09-26 23:17:34"}

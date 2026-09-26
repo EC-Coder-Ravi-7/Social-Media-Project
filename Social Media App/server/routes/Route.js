@@ -16,6 +16,7 @@ import { checkCache } from '../middleware/cache.js';
 import { rateLimiter } from '../middleware/rateLimiter.js';
 import { validateBody } from '../middleware/validate.js';
 import { registerSchema, loginSchema } from '../validation/schemas.js';
+import { getLiveness, getReadiness } from '../controllers/health.js';
 
 const router = express.Router();
 
@@ -37,5 +38,7 @@ router.get('/fetchAllStories', checkCache(60), fetchAllStories);
 router.get('/fetchUserPosts/:id', checkCache(120), fetchUserPosts);
 router.get('/fetchUserName', fetchUserName);
 router.get('/fetchUserImg', fetchUserImg);
+router.get('/health/live', getLiveness);
+router.get('/health/ready', getReadiness);
 
 export default router;
