@@ -1,39 +1,31 @@
 import prisma from '../db.js';
-import { invalidateCache } from '../middleware/cache.js';
+import redis from '../redis.js';
 
 export const createStory = async (req, res) => {
   try {
     const { userId, userName, userPic, fileType } = req.body;
-    const file = req.file ? req.file.path : null;
+    const file = req.file ? req.file.path : req.body.file;
 
-    if (!file) {
-      return res.status(400).json({ error: 'No media file received' });
+    if (!file || !userId) {
+      return res.status(400).json({ error: 'File and User ID are required' });
     }
 
-    const storyModel = prisma.story || prisma.stories || prisma.Story;
-
-    if (!storyModel) {
-      console.error('Prisma models loaded:', Object.keys(prisma));
-      return res.status(500).json({
-        error: 'Prisma Story model missing. Run npx prisma generate in the server directory and restart.',
-      });
-    }
-
-    const newStory = await storyModel.create({
+    const newStory = await prisma.story.create({
       data: {
-        userId: userId || '',
-        userName: userName || 'User',
+        userId,
+        userName: userName || '',
         userPic: userPic || '',
-        file: file,
+        file,
         fileType: fileType || 'photo',
       },
     });
 
-    await invalidateCache(['cache:/fetchAllStories*']);
+    // Invalidate Redis cache so new stories appear immediately
+    await redis.del('cache:/fetchAllStories');
 
-    return res.status(201).json(newStory);
+    res.status(201).json(newStory);
   } catch (error) {
-    console.error('Story upload server error:', error);
-    return res.status(500).json({ error: error.message || 'Server error uploading story' });
+    console.error('Error in createStory:', error);
+    res.status(500).json({ error: error.message });
   }
 };

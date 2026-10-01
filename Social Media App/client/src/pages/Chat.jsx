@@ -19,7 +19,6 @@ const Chat = () => {
   const [typedMessage, setTypedMessage] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Auto-scroll chat to latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -28,36 +27,32 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Fetch initial users to chat with
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchMutualContacts = async () => {
+      if (!userId) return;
       try {
-        const res = await axios.get('http://localhost:6001/fetchAllPosts');
-        // Extract distinct users from posts as conversation contacts
-        const users = [];
-        const map = new Set();
-        (res.data || []).forEach((p) => {
-          if (p.userId !== userId && !map.has(p.userId)) {
-            map.add(p.userId);
-            users.push({
-              id: p.userId,
-              username: p.userName,
-              profilePic: p.userPic || navProfile,
-            });
-          }
-        });
-        setUsersList(users);
-        if (users.length > 0 && !activeChatUser) {
-          setActiveChatUser(users[0]);
+        const res = await axios.get(`http://localhost:6001/chat/contacts/${userId}`);
+        const contacts = (res.data || []).map((user) => ({
+          id: user.id || user._id,
+          username: user.username,
+          profilePic: user.profilePic || navProfile,
+        }));
+
+        setUsersList(contacts);
+
+        if (contacts.length > 0 && !activeChatUser) {
+          setActiveChatUser(contacts[0]);
+        } else if (contacts.length === 0) {
+          setActiveChatUser(null);
         }
       } catch (err) {
-        console.error('Error fetching chat users:', err);
+        console.error('Error fetching mutual chat contacts:', err);
       }
     };
-    fetchUsers();
+
+    fetchMutualContacts();
   }, [userId]);
 
-  // Socket listener for real-time messages
   useEffect(() => {
     if (!socket) return;
 
@@ -100,7 +95,6 @@ const Chat = () => {
       <Navbar />
 
       <div className="igChatContainer">
-        {/* Left Sidebar: Conversations List */}
         <div className={`igChatSidebar ${activeChatUser ? 'hideOnMobile' : ''}`}>
           <div className="igChatSidebarHeader">
             <h3>{currentUsername}</h3>
@@ -110,7 +104,7 @@ const Chat = () => {
             <FiSearch className="igSearchIcon" />
             <input
               type="text"
-              placeholder="Search contacts..."
+              placeholder="Search mutual friends..."
               value={searchUser}
               onChange={(e) => setSearchUser(e.target.value)}
             />
@@ -118,7 +112,7 @@ const Chat = () => {
 
           <div className="igConversationsList">
             {filteredUsers.length === 0 ? (
-              <p className="noConversationsText">No users found</p>
+              <p className="noConversationsText">No mutual connections found</p>
             ) : (
               filteredUsers.map((user) => (
                 <div
@@ -129,7 +123,7 @@ const Chat = () => {
                   <img src={user.profilePic} alt={user.username} className="contactAvatar" />
                   <div className="contactInfo">
                     <p className="contactName">{user.username}</p>
-                    <span className="contactSubtext">Active recently</span>
+                    <span className="contactSubtext">Mutual Friend</span>
                   </div>
                 </div>
               ))
@@ -137,11 +131,9 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Right Pane: Active Message Conversation */}
         <div className={`igChatMain ${!activeChatUser ? 'hideOnMobile' : ''}`}>
           {activeChatUser ? (
             <>
-              {/* Header */}
               <div className="igChatMainHeader">
                 <button
                   className="mobileBackBtn"
@@ -160,7 +152,6 @@ const Chat = () => {
                 </div>
               </div>
 
-              {/* Message Bubble History */}
               <div className="igMessagesBody">
                 {messages.length === 0 ? (
                   <div className="noMessagesPlaceholder">
@@ -194,7 +185,6 @@ const Chat = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Message Input Bar */}
               <form className="igChatInputArea" onSubmit={handleSendMessage}>
                 <div className="igInputBoxWrapper">
                   <input
@@ -217,7 +207,7 @@ const Chat = () => {
             <div className="noChatSelected">
               <div className="noChatIcon">💬</div>
               <h3>Your Messages</h3>
-              <p>Send private photos and messages to a friend or contact.</p>
+              <p>Follow users who follow you back to unlock direct messaging.</p>
             </div>
           )}
         </div>

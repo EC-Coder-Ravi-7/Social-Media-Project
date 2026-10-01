@@ -2,10 +2,15 @@ import redis from '../redis.js';
 
 export const rateLimiter = ({ windowInSeconds = 60, maxRequests = 10, keyPrefix = 'rl' }) => {
   return async (req, res, next) => {
-    const ip =
+    let ip =
       req.headers['x-forwarded-for']?.split(',')[0].trim() ||
       req.socket.remoteAddress ||
       '127.0.0.1';
+
+    if (ip === '::1' || ip === '::ffff:127.0.0.1') {
+      ip = '127.0.0.1';
+    }
+
     const key = `${keyPrefix}:${ip}`;
 
     try {

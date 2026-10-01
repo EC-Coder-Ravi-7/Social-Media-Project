@@ -106,31 +106,39 @@ export const login = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, username, about } = req.body;
-    const profilePicUrl = req.file ? req.file.path : undefined;
+    const { userId, username, fullName, about, profilePic } = req.body;
+    const finalUserId = userId || req.body._id;
+
+    if (!finalUserId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const uploadedPic = req.file ? req.file.path : profilePic;
 
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
+      where: { id: finalUserId },
       data: {
         ...(username && { username }),
+        ...(fullName && { fullName }),
         ...(about && { about }),
-        ...(profilePicUrl && { profilePic: profilePicUrl }),
+        ...(uploadedPic && { profilePic: uploadedPic }),
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        fullName: true,
+        about: true,
+        profilePic: true,
       },
     });
 
     return res.status(200).json({
-      message: 'Profile updated successfully',
-      user: {
-        id: updatedUser.id,
-        fullName: user.fullName || user.username,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        profilePic: updatedUser.profilePic,
-        about: updatedUser.about,
-      },
+      ...updatedUser,
+      _id: updatedUser.id,
     });
   } catch (error) {
-    console.error('Update profile error:', error);
-    return res.status(500).json({ error: 'Failed to update profile' });
+    console.error('Error in updateProfile:', error);
+    return res.status(500).json({ error: 'Error updating profile' });
   }
 };
