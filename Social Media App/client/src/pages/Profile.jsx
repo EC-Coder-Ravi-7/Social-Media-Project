@@ -22,11 +22,9 @@ const Profile = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPostModal, setSelectedPostModal] = useState(null);
 
-  // Follow states
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
 
-  // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
   const [editPicFile, setEditPicFile] = useState(null);
   const [editUsername, setEditUsername] = useState('');
@@ -34,7 +32,6 @@ const Profile = () => {
   const [editAbout, setEditAbout] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch Profile via Socket
   useEffect(() => {
     if (!socket) return;
 
@@ -59,7 +56,6 @@ const Profile = () => {
     };
   }, [socket, id, userId]);
 
-  // Fetch All Posts
   const fetchPosts = async () => {
     try {
       const res = await axios.get('http://localhost:6001/fetchAllPosts');
@@ -73,19 +69,16 @@ const Profile = () => {
     fetchPosts();
   }, []);
 
-  // Follow / Unfollow Toggle Handler
   const handleToggleFollow = async () => {
     try {
-      const res = await axios.post('http://localhost:6001/toggleFollow', {
-        currentUserId: userId,
-        targetUserId: id,
+      const res = await axios.post('http://localhost:6001/toggleFollowUser', {
+        userId,
+        targetId: id,
       });
 
       if (res.status === 200) {
         setIsFollowing(res.data.isFollowing);
-        setFollowersCount(res.data.followersCount);
-
-        localStorage.setItem('following', JSON.stringify(res.data.following || []));
+        setFollowersCount((prev) => (res.data.isFollowing ? prev + 1 : Math.max(0, prev - 1)));
 
         if (res.data.isFollowing && socket) {
           socket.emit('send-notification', {
@@ -101,12 +94,10 @@ const Profile = () => {
     }
   };
 
-  // Direct Message Navigation
   const handleDirectMessage = () => {
     navigate(`/chat?userId=${id}`);
   };
 
-  // Update Profile with Cloudinary
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -125,12 +116,18 @@ const Profile = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      if (res.status === 200) {
-        const updated = res.data.user;
-        if (updated.profilePic) localStorage.setItem('profilePic', updated.profilePic);
-        localStorage.setItem('username', updated.username);
-        localStorage.setItem('fullName', editFullName);
-        setUserProfile((prev) => ({ ...prev, ...updated, fullName: editFullName }));
+      if (res.status === 200 && res.data) {
+        const updated = res.data.user || res.data;
+        if (updated.profilePic) {
+          localStorage.setItem('profilePic', updated.profilePic);
+        }
+        if (updated.username) {
+          localStorage.setItem('username', updated.username);
+        }
+        if (updated.fullName) {
+          localStorage.setItem('fullName', updated.fullName);
+        }
+        setUserProfile((prev) => ({ ...prev, ...updated }));
         setIsEditing(false);
         setIsSaving(false);
         window.location.reload();
@@ -188,7 +185,6 @@ const Profile = () => {
       <Navbar />
 
       <main className="igProfileMain">
-        {/* Top Profile Header Section */}
         <header className="igProfileHeader">
           <div className="igAvatarColumn">
             <div className="igAvatarWrapper">
@@ -197,13 +193,11 @@ const Profile = () => {
           </div>
 
           <section className="igDetailsColumn">
-            {/* Row 1: Username & Gear / Edit */}
             <div className="igUsernameRow">
               <h2 className="igProfileUsername">{displayUsername}</h2>
               {isOwnProfile && <BsGearWide className="igSettingsIcon" onClick={() => setIsEditing(true)} />}
             </div>
 
-            {/* Row 2: Action Buttons */}
             <div className="igProfileActionsBar">
               {isOwnProfile ? (
                 <>
@@ -229,7 +223,6 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Row 3: Stats Counter */}
             <ul className="igStatsRow">
               <li>
                 <span className="igStatCount">{userPosts.length}</span> posts
@@ -242,7 +235,6 @@ const Profile = () => {
               </li>
             </ul>
 
-            {/* Row 4: Full Name & Bio */}
             <div className="igBioSection">
               <span className="igFullName">{displayFullName}</span>
               <p className="igBioText">{displayAbout}</p>
@@ -250,7 +242,6 @@ const Profile = () => {
           </section>
         </header>
 
-        {/* Highlights Section */}
         <div className="igHighlightsContainer">
           <div className="igHighlightItem">
             <div className="igHighlightCircle">
@@ -269,7 +260,6 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Navigation Tabs */}
         <div className="igProfileTabsNav">
           <div className="igTabItem active">
             <BsGrid3X3 />
@@ -277,7 +267,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* 3-Column Instagram Post Grid */}
         <section className="igGridSection">
           {userPosts.length === 0 ? (
             <div className="igEmptyGrid">
@@ -313,7 +302,6 @@ const Profile = () => {
         </section>
       </main>
 
-      {/* Edit Profile Modal */}
       {isEditing && (
         <div className="igModalOverlay" onClick={() => setIsEditing(false)}>
           <div className="igModalDialog" onClick={(e) => e.stopPropagation()}>
@@ -365,7 +353,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Full-view Post Detail Modal */}
       {selectedPostModal && (
         <div className="igModalOverlay" onClick={() => setSelectedPostModal(null)}>
           <div className="igPostDetailDialog" onClick={(e) => e.stopPropagation()}>

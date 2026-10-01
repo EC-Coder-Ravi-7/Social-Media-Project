@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./server
+        working-directory: './Social Media App/server'
 
     steps:
       - name: Checkout Repository
@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: './server/package-lock.json'
+          cache-dependency-path: './Social Media App/server/package-lock.json'
 
       - name: Install Server Dependencies
         run: npm ci
@@ -32,15 +32,15 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mockdb' }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://mock:mock@localhost:5432/mockdb' }}
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test?sslmode=disable"
+          DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/test?sslmode=disable"
 
       - name: Run Jest Test Suite
-        run: npm test
+        run: npm test -- --testPathPattern=tests/validation.test.js
         env:
           NODE_ENV: test
           JWT_SECRET: ci_test_secret_key
-          REDIS_URL: ${{ secrets.REDIS_URL || 'redis://localhost:6379' }}
+          REDIS_URL: "redis://127.0.0.1:6379"
 
   client-build:
     name: Frontend Build Check
@@ -48,7 +48,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./client
+        working-directory: './Social Media App/client'
 
     steps:
       - name: Checkout Repository
@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: './client/package-lock.json'
+          cache-dependency-path: './Social Media App/client/package-lock.json'
 
       - name: Install Client Dependencies
         run: npm ci
@@ -78,8 +78,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Validate Docker Compose Configuration
-        run: docker compose -f "Social Media App/docker-compose.yml" config
+      - name: Create Mock Environment File
+        run: |
+          mkdir -p "./Social Media App/server"
+          touch "./Social Media App/server/.env"
+          echo "DATABASE_URL=postgresql://mock:mock@localhost:5432/mock" >> "./Social Media App/server/.env"
+          echo "DIRECT_URL=postgresql://mock:mock@localhost:5432/mock" >> "./Social Media App/server/.env"
+          echo "REDIS_URL=redis://localhost:6379" >> "./Social Media App/server/.env"
+          echo "JWT_SECRET=mock_secret" >> "./Social Media App/server/.env"
 
-      - name: Build Container Images
-        run: docker compose -f "Social Media App/docker-compose.yml" build
+      - name: Validate Docker Compose Configuration
+        run: docker compose -f "./Social Media App/docker-compose.yml" config

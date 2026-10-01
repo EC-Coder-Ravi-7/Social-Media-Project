@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
+import redis from '../redis.js';
 
 export const register = async (req, res) => {
   try {
     const { username, email, password, profilePic, about } = req.body;
 
-    // Check existing email
     const existingEmail = await prisma.user.findUnique({
       where: { email },
     });
@@ -14,7 +14,6 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: 'Email already registered' });
     }
 
-    // Check existing username
     const existingUsername = await prisma.user.findUnique({
       where: { username },
     });
@@ -22,11 +21,9 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: 'Username already taken' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user in PostgreSQL
     const user = await prisma.user.create({
       data: {
         username,
@@ -63,7 +60,6 @@ export const login = async (req, res) => {
       return res.status(400).json({ msg: 'Please provide email/username and password' });
     }
 
-    // Find by either email OR username (case-insensitive)
     const user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -106,14 +102,14 @@ export const login = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, username, fullName, about, profilePic } = req.body;
+    const { userId, username, fullName, about } = req.body;
     const finalUserId = userId || req.body._id;
 
     if (!finalUserId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    const uploadedPic = req.file ? req.file.path : profilePic;
+    const uploadedPic = req.file ? req.file.path : req.body.profilePic;
 
     const updatedUser = await prisma.user.update({
       where: { id: finalUserId },
@@ -132,6 +128,14 @@ export const updateProfile = async (req, res) => {
         profilePic: true,
       },
     });
+
+    if (uploadedPic) {
+      await prisma.post.updateMany({
+        where: { userId: finalUserId },
+        data: { userPic: uploadedPic },
+      });
+      await redis.del('cache:/fetchAllPosts');
+    }
 
     return res.status(200).json({
       ...updatedUser,
