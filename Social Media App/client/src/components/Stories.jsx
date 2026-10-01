@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../styles/Stories.css';
-import { AiOutlinePlus } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineClose } from 'react-icons/ai';
 import { GeneralContext } from '../context/GeneralContextProvider';
 import navProfile from '../images/nav-profile.avif';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import axios from 'axios';
 const Stories = () => {
   const { isCreatStoryOpen, setIsCreateStoryOpen } = useContext(GeneralContext);
   const [stories, setStories] = useState([]);
+  const [activeStory, setActiveStory] = useState(null);
 
   const userPic = localStorage.getItem('profilePic');
 
@@ -26,7 +27,6 @@ const Stories = () => {
   return (
     <div className="StoriesContainer">
       <div className="Stories">
-        {/* User Story Circle */}
         <div className="Story" onClick={() => setIsCreateStoryOpen(!isCreatStoryOpen)}>
           <div className="storyUserImgWrapper">
             <img
@@ -41,16 +41,62 @@ const Stories = () => {
           <p>Your story</p>
         </div>
 
-        {/* Other Users' Stories */}
         {stories.map((story) => (
-          <div className="Story" key={story.id || story._id}>
+          <div
+            className="Story"
+            key={story.id || story._id}
+            onClick={() => setActiveStory(story)}
+          >
             <div className="storyUserImgWrapper">
-              <img src={story.file || navProfile} alt="Story" className="storyUserImg" />
+              <img
+                src={story.userPic || story.file || navProfile}
+                alt="Story"
+                className="storyUserImg"
+              />
             </div>
             <p>{story.userName}</p>
           </div>
         ))}
       </div>
+
+      {activeStory && (
+        <div className="storyViewerOverlay" onClick={() => setActiveStory(null)}>
+          <div className="storyViewerModal" onClick={(e) => e.stopPropagation()}>
+            <div className="storyViewerHeader">
+              <div className="storyViewerUser">
+                <img
+                  src={activeStory.userPic || navProfile}
+                  alt={activeStory.userName}
+                  className="storyViewerAvatar"
+                />
+                <span>{activeStory.userName}</span>
+              </div>
+              <button
+                className="storyViewerCloseBtn"
+                onClick={() => setActiveStory(null)}
+              >
+                <AiOutlineClose />
+              </button>
+            </div>
+            <div className="storyViewerMediaContainer">
+              {activeStory.fileType === 'video' ? (
+                <video
+                  src={activeStory.file}
+                  className="storyViewerMedia"
+                  autoPlay
+                  controls
+                />
+              ) : (
+                <img
+                  src={activeStory.file}
+                  alt="Story Content"
+                  className="storyViewerMedia"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
