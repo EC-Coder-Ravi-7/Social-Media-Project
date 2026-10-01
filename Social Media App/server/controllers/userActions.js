@@ -51,7 +51,10 @@ export const toggleFollowUser = async (req, res) => {
       // Fetch follower info for notification
       const follower = await prisma.user.findUnique({
         where: { id: userId },
-        select: { username: true },
+        select: {
+          username: true,
+          profilePic: true,
+        },
       });
 
       // Background idempotency key
@@ -62,6 +65,7 @@ export const toggleFollowUser = async (req, res) => {
         {
           followerId: userId,
           followerUsername: follower?.username || 'Someone',
+          followerProfilePic: follower?.profilePic || '',
           targetUserId: targetId,
         },
         deduplicationKey

@@ -25,11 +25,13 @@ export const initNotificationWorker = (io) => {
 
       switch (job.name) {
         case 'FOLLOW_NOTIFICATION': {
-          const { followerId, followerUsername, targetUserId } = job.data;
+          const { followerId, followerUsername, followerProfilePic, targetUserId } = job.data;
           if (io) {
-            io.to(targetUserId).emit('notification', {
+            io.to(targetUserId).emit('new-notification', {
               type: 'FOLLOW',
-              message: `@${followerUsername} started following you.`,
+              user: followerUsername,
+              userPic: followerProfilePic,
+              message: 'started following you.',
               followerId,
               timestamp: new Date(),
             });

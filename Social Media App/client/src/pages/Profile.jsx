@@ -81,12 +81,7 @@ const Profile = () => {
         setFollowersCount((prev) => (res.data.isFollowing ? prev + 1 : Math.max(0, prev - 1)));
 
         if (res.data.isFollowing && socket) {
-          socket.emit('send-notification', {
-            targetUserId: id,
-            senderName: localStorage.getItem('username') || 'Someone',
-            userPic: localStorage.getItem('profilePic') || '',
-            action: 'started following you',
-          });
+          
         }
       }
     } catch (err) {

@@ -2,7 +2,14 @@ import prisma from './db.js';
 
 export const SocketHandler = (io) => {
   io.on('connection', (socket) => {
-    console.log('User connected to socket:', socket.id);
+    
+    socket.on('join-user-room', ({ userId }) => {
+      if (!userId) return;
+
+      socket.join(userId);
+
+      console.log(`Socket ${socket.id} joined user room: ${userId}`);
+    });
 
     // 1. Fetch Profile
     socket.on('fetch-profile', async ({ _id }) => {

@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { socket } from './GeneralContextProvider';
 
 export const AuthenticationContext = createContext();
 
@@ -27,8 +28,11 @@ export const AuthenticationContextProvider = ({ children }) => {
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('userId', user.id);
         localStorage.setItem('_id', user.id);
-        localStorage.setItem('username', user.username);
         localStorage.setItem('userName', user.username);
+        socket.emit('join-user-room', {
+          userId: user.id,
+        });
+        console.log('🔔 Joining notification room:', user.id);
         // Save the dynamic full name from DB
         localStorage.setItem('fullName', user.fullName || user.username);
         localStorage.setItem('email', user.email);

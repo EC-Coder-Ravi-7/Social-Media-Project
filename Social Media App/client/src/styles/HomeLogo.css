@@ -76,3 +76,18 @@
         
     }
 }
+
+.searchWrapper {
+    position: relative;
+}
+
+.searchContainer {
+    width: 100%;
+    height: fit-content;
+    background-color: rgba(158, 202, 228, 0.155);
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    border-radius: 1rem;
+    z-index: 20;
+}
