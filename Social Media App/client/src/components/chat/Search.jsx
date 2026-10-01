@@ -15,7 +15,7 @@ const Search = () => {
     e.preventDefault();
     setErr(false);
     setUser();
-    await socket.emit('chat-user-searched', {ownId: userId,username: search});
+    await socket.emit('chat-searched-usered', {ownId: userId,username: search});
     setSearch('')
   }
 

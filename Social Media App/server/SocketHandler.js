@@ -238,6 +238,52 @@ export const SocketHandler = (io) => {
       }
     });
 
+    // 9. Search User
+    socket.on('user-search', async ({ username }) => {
+      try {
+        const searchUsername = username?.trim();
+
+        if (!searchUsername) {
+          socket.emit('searched-user', { user: null });
+          return;
+        }
+
+        const user = await prisma.user.findFirst({
+          where: {
+            username: {
+              equals: searchUsername,
+              mode: 'insensitive',
+            },
+          },
+          select: {
+            id: true,
+            username: true,
+            profilePic: true,
+            fullName: true,
+            about: true,
+          },
+        });
+
+        if (!user) {
+          socket.emit('searched-user', { user: null });
+          return;
+        }
+
+        socket.emit('searched-user', {
+          user: {
+            _id: user.id,
+            username: user.username,
+            profilePic: user.profilePic,
+            fullName: user.fullName,
+            about: user.about,
+          },
+        });
+      } catch (err) {
+        console.error('Socket user-search error:', err);
+        socket.emit('searched-user', { user: null });
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected from socket:', socket.id);
     });

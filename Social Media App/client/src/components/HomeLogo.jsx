@@ -12,16 +12,27 @@ const HomeLogo = () => {
   const [search, setSearch] = useState('');
   const [searchedUser, setSearchedUser] = useState();
 
-  const handleSearch = async ()=>{
-    await socket.emit('user-search', {username: search});
-    setSearch('')
-  }
+  const handleSearch = () => {
+    if (!search.trim()) return;
 
-  useEffect(()=>{
-    socket.on('searched-user', ({user})=>{
-      setSearchedUser(user);
+    socket.emit('user-search', {
+      username: search.trim()
     });
-  },[socket])
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSearchedUser = ({ user }) => {
+      setSearchedUser(user);
+    };
+
+    socket.on('searched-user', handleSearchedUser);
+
+    return () => {
+      socket.off('searched-user', handleSearchedUser);
+    };
+  }, [socket]);
 
 
   return (

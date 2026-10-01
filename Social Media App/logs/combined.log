@@ -287,3 +287,61 @@
 {"level":"info","message":"GET /fetchAllPosts 304 - - 30.240 ms","timestamp":"2026-10-01 22:42:54"}
 {"level":"info","message":"GET /fetchAllStories 304 - - 31.846 ms","timestamp":"2026-10-01 22:42:54"}
 {"level":"info","message":"GET /fetchAllPosts 304 - - 32.852 ms","timestamp":"2026-10-01 22:42:54"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-01 22:52:46"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-01 22:52:47"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 2193.042 ms","timestamp":"2026-10-01 22:54:04"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 122.521 ms","timestamp":"2026-10-01 22:54:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2369.224 ms","timestamp":"2026-10-01 22:54:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.851 ms","timestamp":"2026-10-01 22:54:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 38.082 ms","timestamp":"2026-10-01 22:54:09"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 31.734 ms","timestamp":"2026-10-01 22:54:09"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.172 ms","timestamp":"2026-10-01 22:54:11"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.566 ms","timestamp":"2026-10-01 22:54:11"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 36.600 ms","timestamp":"2026-10-01 22:54:11"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 36.933 ms","timestamp":"2026-10-01 22:54:11"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.171 ms","timestamp":"2026-10-01 22:54:14"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.419 ms","timestamp":"2026-10-01 22:54:14"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 32.313 ms","timestamp":"2026-10-01 22:54:14"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 32.825 ms","timestamp":"2026-10-01 22:54:14"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2918.614 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 235.737 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.637 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.808 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.927 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.047 ms","timestamp":"2026-10-01 23:52:41"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.136 ms","timestamp":"2026-10-01 23:52:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.826 ms","timestamp":"2026-10-01 23:52:46"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.302 ms","timestamp":"2026-10-01 23:52:47"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.260 ms","timestamp":"2026-10-01 23:52:47"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.572 ms","timestamp":"2026-10-01 23:52:47"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.145 ms","timestamp":"2026-10-01 23:52:47"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-02 00:57:59"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-02 00:57:59"}
+{"level":"info","message":"GET /fetchAllPosts 200 392 - 29.225 ms","timestamp":"2026-10-02 00:57:59"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.476 ms","timestamp":"2026-10-02 00:57:59"}
+{"level":"info","message":"POST /updateProfile 200 326 - 6281.019 ms","timestamp":"2026-10-02 00:58:16"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 1012.756 ms","timestamp":"2026-10-02 00:58:17"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 198.758 ms","timestamp":"2026-10-02 00:58:18"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 33.055 ms","timestamp":"2026-10-02 00:58:21"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 31.647 ms","timestamp":"2026-10-02 00:58:21"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 208.505 ms","timestamp":"2026-10-02 00:58:21"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.165 ms","timestamp":"2026-10-02 00:58:21"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 1706.631 ms","timestamp":"2026-10-02 00:59:23"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 26.916 ms","timestamp":"2026-10-02 00:59:23"}
+{"level":"info","message":"POST /updateProfile 200 326 - 3648.787 ms","timestamp":"2026-10-02 00:59:37"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 287.638 ms","timestamp":"2026-10-02 00:59:37"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.209 ms","timestamp":"2026-10-02 00:59:37"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.113 ms","timestamp":"2026-10-02 00:59:39"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.851 ms","timestamp":"2026-10-02 00:59:39"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 197.817 ms","timestamp":"2026-10-02 00:59:39"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.123 ms","timestamp":"2026-10-02 00:59:39"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.314 ms","timestamp":"2026-10-02 00:59:43"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.343 ms","timestamp":"2026-10-02 00:59:43"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.789 ms","timestamp":"2026-10-02 00:59:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.582 ms","timestamp":"2026-10-02 00:59:46"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.855 ms","timestamp":"2026-10-02 00:59:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.617 ms","timestamp":"2026-10-02 00:59:46"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 01:08:58"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 01:08:58"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 01:10:00"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 01:10:00"}
