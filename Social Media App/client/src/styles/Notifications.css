@@ -94,3 +94,26 @@
   font-size: 11px;
   color: #8e8e8e;
 }
+
+.notificationFollowBackBtn,
+.notificationFollowingBtn {
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  margin-top: 6px;
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.notificationFollowBackBtn {
+  background: #0095f6;
+  color: white;
+}
+
+.notificationFollowingBtn {
+  background: #efefef;
+  color: #262626;
+}

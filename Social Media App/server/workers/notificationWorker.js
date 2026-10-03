@@ -32,8 +32,10 @@ export const initNotificationWorker = (io) => {
             targetUserId,
           } = job.data;
 
+          const roomId = String(targetUserId);
+
           if (io) {
-            io.to(String(targetUserId)).emit('new-notification', {
+            io.to(roomId).emit('new-notification', {
               type: 'FOLLOW',
               user: followerUsername,
               userPic: followerProfilePic,
@@ -44,7 +46,7 @@ export const initNotificationWorker = (io) => {
           }
 
           console.log(
-            `🔔 [Worker] Dispatched follow alert to room ${String(targetUserId)}`
+            `🔔 [Worker] Dispatched follow notification to room: ${roomId}`
           );
 
           break;

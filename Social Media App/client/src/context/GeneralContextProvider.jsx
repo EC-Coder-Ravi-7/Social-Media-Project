@@ -16,12 +16,16 @@ export const GeneralContextProvider = ({ children }) => {
         localStorage.getItem('userId') ||
         localStorage.getItem('_id');
 
-      if (userId) {
-        console.log('🔔 Joining notification room:', userId);
-        socket.emit('join-user-room', { userId });
-      } else {
-        console.log('⚠️ No userId found. Cannot join notification room.');
+      if (!userId) {
+        console.log('⚠️ Notification room: userId not available');
+        return;
       }
+
+      console.log('🔔 Joining notification room:', userId);
+
+      socket.emit('join-user-room', {
+        userId: String(userId),
+      });
     };
 
     socket.on('connect', joinUserRoom);
@@ -30,8 +34,15 @@ export const GeneralContextProvider = ({ children }) => {
       joinUserRoom();
     }
 
+    const interval = setInterval(() => {
+      if (socket.connected) {
+        joinUserRoom();
+      }
+    }, 1000);
+
     return () => {
       socket.off('connect', joinUserRoom);
+      clearInterval(interval);
     };
   }, []);
 

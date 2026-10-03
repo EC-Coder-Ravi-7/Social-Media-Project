@@ -3,9 +3,13 @@ import '../styles/Notifications.css';
 import { RxCross2 } from 'react-icons/rx';
 import { GeneralContext } from '../context/GeneralContextProvider';
 import navProfile from '../images/nav-profile.avif';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Notifications = () => {
   const { isNotificationsOpen, setIsNotificationsOpen, socket } = useContext(GeneralContext);
+  
+  const navigate = useNavigate();
 
   const getRelativeTime = (timestamp) => {
     if (!timestamp) return 'Just now';
@@ -50,22 +54,62 @@ const Notifications = () => {
       setNotifications((prev) => [
         {
           id: Date.now(),
+          type: notif.type,
+          followerId: notif.followerId,
           user: notif.user || notif.senderName || 'Someone',
           userPic: notif.userPic || navProfile,
           action: notif.action || notif.text || 'interacted with your post',
           createdAt: new Date().toISOString(),
+          isFollowingBack: false,
         },
         ...prev,
       ]);
     };
-
-    socket.on('new-notification', handleIncomingNotif);
-    socket.on('notification-received', handleIncomingNotif);
-    return () => {
-      socket.off('new-notification', handleIncomingNotif);
-      socket.off('notification-received', handleIncomingNotif);
-    };
+      socket.on('new-notification', handleIncomingNotif);
+          socket.on('notification-received', handleIncomingNotif);
+          return () => {
+            socket.off('new-notification', handleIncomingNotif);
+            socket.off('notification-received', handleIncomingNotif);
+          };
   }, [socket]);
+  
+    const handleFollowBack = async (notificationId, followerId) => {
+      try {
+        const userId =
+          localStorage.getItem('userId') ||
+          localStorage.getItem('_id');
+
+        if (!userId || !followerId) {
+          console.error('Missing userId or followerId');
+          return;
+        }
+
+        const res = await axios.post(
+          'http://localhost:6001/toggleFollowUser',
+          {
+            userId,
+            targetId: followerId,
+          }
+        );
+
+        if (res.status === 200 && res.data.isFollowing) {
+          setNotifications((prev) =>
+            prev.map((notification) =>
+              notification.id === notificationId
+                ? {
+                    ...notification,
+                    isFollowingBack: true,
+                  }
+                : notification
+            )
+          );
+        }
+      } catch (err) {
+        console.error('Failed to follow back:', err);
+      }
+    };
+
+    
 
   if (!isNotificationsOpen) return null;
 
@@ -83,13 +127,52 @@ const Notifications = () => {
         <div className="igNotifList">
           <span className="igNotifSectionTitle">Recent</span>
           {notifications.map((n) => (
-            <div className="igNotifItem" key={n.id}>
-              <img src={n.userPic || navProfile} alt="" className="igNotifAvatar" />
+            <div
+              className="igNotifItem"
+              key={n.id}
+              onClick={() => {
+                if (n.followerId) {
+                  setIsNotificationsOpen(false);
+                  navigate(`/profile/${n.followerId}`);
+                }
+              }}
+              style={{
+                cursor: n.followerId ? 'pointer' : 'default',
+              }}
+            >
+              <img
+                src={n.userPic || navProfile}
+                alt={n.user || 'User'}
+                className="igNotifAvatar"
+              />
+
               <div className="igNotifText">
                 <p>
                   <b>{n.user}</b> {n.action}
                 </p>
-                <span className="igNotifTime">{getRelativeTime(n.createdAt)}</span>
+
+                <span className="igNotifTime">
+                  {getRelativeTime(n.createdAt)}
+                </span>
+
+                {n.type === 'FOLLOW' && n.followerId && (
+                  <button
+                    className={
+                      n.isFollowingBack
+                        ? 'notificationFollowingBtn'
+                        : 'notificationFollowBackBtn'
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      if (!n.isFollowingBack) {
+                        handleFollowBack(n.id, n.followerId);
+                      }
+                    }}
+                  >
+                    {n.isFollowingBack ? 'Following' : 'Follow Back'}
+                  </button>
+                )}
               </div>
             </div>
           ))}

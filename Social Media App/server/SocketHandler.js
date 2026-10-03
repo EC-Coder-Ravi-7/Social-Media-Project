@@ -5,14 +5,16 @@ export const SocketHandler = (io) => {
     
     socket.on('join-user-room', ({ userId }) => {
       if (!userId) {
-        console.log('⚠️ join-user-room called without userId');
+        console.log('⚠️ join-user-room received without userId');
         return;
       }
 
-      socket.join(String(userId));
+      const roomId = String(userId);
+
+      socket.join(roomId);
 
       console.log(
-        `🔔 Socket ${socket.id} joined notification room: ${String(userId)}`
+        `🔔 Socket ${socket.id} joined notification room: ${roomId}`
       );
     });
 

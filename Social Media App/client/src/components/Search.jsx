@@ -18,15 +18,12 @@ const Search = ({ searchedUser, setSearchedUser }) => {
           }}
         >
           <img
-            src={
-              searchedUser.profilePic &&
-              searchedUser.profilePic !== 'undefined' &&
-              searchedUser.profilePic !== ''
-                ? searchedUser.profilePic
-                : navProfile
-            }
+            src={searchedUser.profilePic || navProfile}
             alt={searchedUser.username}
-            className="searchedUserPic"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = navProfile;
+            }}
           />
 
           <div className="searchedUserChatInfo">

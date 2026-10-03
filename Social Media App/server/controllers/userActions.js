@@ -58,7 +58,7 @@ export const toggleFollowUser = async (req, res) => {
       });
 
       // Background idempotency key
-      const deduplicationKey = `follow:${userId}:${targetId}:${Math.floor(Date.now() / 60000)}`;
+      const deduplicationKey = `follow-${userId}-${targetId}-${Math.floor(Date.now() / 60000)}`;
 
       await addNotificationJob(
         'FOLLOW_NOTIFICATION',
