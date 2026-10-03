@@ -1037,3 +1037,74 @@
 {"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:06:41"}
 {"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:06:41"}
 {"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:06:43"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:06:44"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:06:44"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 907.327 ms","timestamp":"2026-10-04 01:08:35"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 233.212 ms","timestamp":"2026-10-04 01:08:52"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 234.620 ms","timestamp":"2026-10-04 01:08:52"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 240.220 ms","timestamp":"2026-10-04 01:08:57"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 231.061 ms","timestamp":"2026-10-04 01:09:01"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 372.853 ms","timestamp":"2026-10-04 01:09:02"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 902.589 ms","timestamp":"2026-10-04 01:10:55"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 230.198 ms","timestamp":"2026-10-04 01:11:02"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 217.500 ms","timestamp":"2026-10-04 01:11:06"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 215.986 ms","timestamp":"2026-10-04 01:11:10"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 751.582 ms","timestamp":"2026-10-04 01:12:25"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 239.637 ms","timestamp":"2026-10-04 01:12:32"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-04 01:13:59"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-04 01:13:59"}
+{"level":"info","message":"GET /fetchAllStories - - - - ms","timestamp":"2026-10-04 01:13:59"}
+{"level":"info","message":"GET /fetchAllStories 200 2 - 29.991 ms","timestamp":"2026-10-04 01:14:00"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.179 ms","timestamp":"2026-10-04 01:14:00"}
+{"level":"info","message":"GET /fetchAllPosts 200 392 - 289.873 ms","timestamp":"2026-10-04 01:14:00"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 77.601 ms","timestamp":"2026-10-04 01:14:00"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.482 ms","timestamp":"2026-10-04 01:14:02"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.483 ms","timestamp":"2026-10-04 01:14:02"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.538 ms","timestamp":"2026-10-04 01:14:02"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.133 ms","timestamp":"2026-10-04 01:14:02"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 232.257 ms","timestamp":"2026-10-04 01:14:04"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 236.623 ms","timestamp":"2026-10-04 01:14:04"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 242.559 ms","timestamp":"2026-10-04 01:14:18"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 243.507 ms","timestamp":"2026-10-04 01:14:18"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 261.875 ms","timestamp":"2026-10-04 01:14:24"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 238.690 ms","timestamp":"2026-10-04 01:14:24"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 725.186 ms","timestamp":"2026-10-04 01:15:26"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 34.511 ms","timestamp":"2026-10-04 01:15:26"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 1222.738 ms","timestamp":"2026-10-04 01:15:26"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.735 ms","timestamp":"2026-10-04 01:15:26"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 230.732 ms","timestamp":"2026-10-04 01:15:28"}
+{"level":"info","message":"GET /chat/contacts/194343e1-be07-4f1d-ad16-b7db50d5831c 304 - - 224.333 ms","timestamp":"2026-10-04 01:15:28"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 636.392 ms","timestamp":"2026-10-04 01:17:28"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.243 ms","timestamp":"2026-10-04 01:17:28"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 821.467 ms","timestamp":"2026-10-04 01:17:28"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.729 ms","timestamp":"2026-10-04 01:17:28"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 224.355 ms","timestamp":"2026-10-04 01:17:30"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 220.119 ms","timestamp":"2026-10-04 01:17:30"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.351 ms","timestamp":"2026-10-04 01:17:34"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.623 ms","timestamp":"2026-10-04 01:17:34"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.503 ms","timestamp":"2026-10-04 01:17:34"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.619 ms","timestamp":"2026-10-04 01:17:34"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 227.620 ms","timestamp":"2026-10-04 01:17:39"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 240.699 ms","timestamp":"2026-10-04 01:17:39"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.978 ms","timestamp":"2026-10-04 01:17:48"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.375 ms","timestamp":"2026-10-04 01:17:48"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.729 ms","timestamp":"2026-10-04 01:17:48"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.133 ms","timestamp":"2026-10-04 01:17:48"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 218.434 ms","timestamp":"2026-10-04 01:17:50"}
+{"level":"info","message":"GET /chat/contacts/828cd489-6808-4ea7-ad5c-3d048e46dc55 304 - - 221.186 ms","timestamp":"2026-10-04 01:17:50"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.717 ms","timestamp":"2026-10-04 01:17:52"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.431 ms","timestamp":"2026-10-04 01:17:52"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 42.949 ms","timestamp":"2026-10-04 01:17:52"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.014 ms","timestamp":"2026-10-04 01:17:52"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:28:33"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:28:33"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:29:03"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:29:03"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:29:16"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:29:16"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:29:21"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:29:21"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:29:22"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:29:22"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-04 01:33:00"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-04 01:33:00"}

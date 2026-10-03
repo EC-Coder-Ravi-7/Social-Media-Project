@@ -18,23 +18,84 @@ export const SocketHandler = (io) => {
       );
     });
 
-    // Send Direct Message
-    socket.on('send-message', (message) => {
-      try {
-        const { senderId, receiverId, text } = message;
+    socket.on('fetch-chat-history', async ({ userId, otherUserId }) => {
+        try {
+          if (!userId || !otherUserId) return;
 
-        if (!senderId || !receiverId || !text) {
-          console.log('⚠️ Invalid message received:', message);
+          const messages = await prisma.message.findMany({
+            where: {
+              OR: [
+                {
+                  senderId: userId,
+                  receiverId: otherUserId,
+                },
+                {
+                  senderId: otherUserId,
+                  receiverId: userId,
+                },
+              ],
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          });
+
+          socket.emit('chat-history', {
+            otherUserId,
+            messages: messages.map((message) => ({
+              id: message.id,
+              senderId: message.senderId,
+              receiverId: message.receiverId,
+              text: message.text,
+              timestamp: message.createdAt.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+            })),
+          });
+        } catch (err) {
+          console.error('Socket fetch-chat-history error:', err);
+        }
+      });
+
+    // Send Direct Message
+    socket.on('send-message', async (data) => {
+      try {
+        const {
+          senderId,
+          receiverId,
+          text,
+        } = data;
+
+        if (!senderId || !receiverId || !text?.trim()) {
           return;
         }
 
-        io.to(String(receiverId)).emit('receive-message', message);
+        const message = await prisma.message.create({
+          data: {
+            senderId,
+            receiverId,
+            text: text.trim(),
+          },
+        });
 
-        console.log(
-          `💬 Message sent from ${senderId} to ${receiverId}: ${text}`
-        );
+        const formattedMessage = {
+          id: message.id,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          text: message.text,
+          timestamp: message.createdAt.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        };
+
+        // Send the saved message to both users
+        io.to(String(senderId)).emit('receive-message', formattedMessage);
+        io.to(String(receiverId)).emit('receive-message', formattedMessage);
+
       } catch (err) {
-        console.error('❌ Socket send-message error:', err);
+        console.error('Socket send-message error:', err);
       }
     });
 

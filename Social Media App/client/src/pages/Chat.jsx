@@ -24,7 +24,9 @@ const Chat = () => {
   const [searchUser, setSearchUser] = useState('');
   const [usersList, setUsersList] = useState([]);
   const [activeChatUser, setActiveChatUser] = useState(null);
+
   const [messages, setMessages] = useState([]);
+
   const [typedMessage, setTypedMessage] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -59,21 +61,45 @@ const Chat = () => {
     fetchMutualContacts();
   }, [userId]);
 
+
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !activeChatUser || !userId) return;
 
     const handleNewMessage = (data) => {
       if (
-        (data.senderId === activeChatUser?.id && data.receiverId === userId) ||
-        (data.senderId === userId && data.receiverId === activeChatUser?.id)
+        (data.senderId === activeChatUser.id && data.receiverId === userId) ||
+        (data.senderId === userId && data.receiverId === activeChatUser.id)
       ) {
         setMessages((prev) => [...prev, data]);
       }
     };
 
+    const handleChatHistory = ({ otherUserId, messages }) => {
+      if (otherUserId === activeChatUser.id) {
+        setMessages(messages);
+      }
+    };
+
     socket.on('receive-message', handleNewMessage);
-    return () => socket.off('receive-message', handleNewMessage);
+    socket.on('chat-history', handleChatHistory);
+
+    return () => {
+      socket.off('receive-message', handleNewMessage);
+      socket.off('chat-history', handleChatHistory);
+    };
   }, [socket, activeChatUser, userId]);
+
+  useEffect(() => {
+    if (!socket || !activeChatUser || !userId) return;
+
+    setMessages([]);
+
+    socket.emit('fetch-chat-history', {
+      userId,
+      otherUserId: activeChatUser.id,
+    });
+  }, [socket, activeChatUser, userId]);
+
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -88,7 +114,6 @@ const Chat = () => {
     };
 
     socket.emit('send-message', newMsg);
-    setMessages((prev) => [...prev, newMsg]);
     setTypedMessage('');
   };
 
@@ -173,7 +198,7 @@ const Chat = () => {
                     const isMine = msg.senderId === userId;
                     return (
                       <div
-                        key={index}
+                        key={msg.id}
                         className={`igMessageRow ${isMine ? 'mine' : 'theirs'}`}
                       >
                         {!isMine && (
