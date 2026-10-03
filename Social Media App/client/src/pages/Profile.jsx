@@ -79,10 +79,6 @@ const Profile = () => {
       if (res.status === 200) {
         setIsFollowing(res.data.isFollowing);
         setFollowersCount((prev) => (res.data.isFollowing ? prev + 1 : Math.max(0, prev - 1)));
-
-        if (res.data.isFollowing && socket) {
-          
-        }
       }
     } catch (err) {
       console.error('Failed to toggle follow:', err);

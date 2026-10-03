@@ -17,7 +17,10 @@ export const GeneralContextProvider = ({ children }) => {
         localStorage.getItem('_id');
 
       if (userId) {
+        console.log('🔔 Joining notification room:', userId);
         socket.emit('join-user-room', { userId });
+      } else {
+        console.log('⚠️ No userId found. Cannot join notification room.');
       }
     };
 

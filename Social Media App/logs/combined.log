@@ -584,3 +584,131 @@
 {"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 02:36:55"}
 {"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 02:37:14"}
 {"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 02:37:15"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 02:37:55"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 02:37:55"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 1695.487 ms","timestamp":"2026-10-02 02:41:44"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.878 ms","timestamp":"2026-10-02 02:41:44"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2256.755 ms","timestamp":"2026-10-02 02:41:45"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.687 ms","timestamp":"2026-10-02 02:41:45"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.551 ms","timestamp":"2026-10-02 02:41:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.212 ms","timestamp":"2026-10-02 02:41:46"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.092 ms","timestamp":"2026-10-02 02:41:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.166 ms","timestamp":"2026-10-02 02:41:46"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.519 ms","timestamp":"2026-10-02 02:41:47"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.573 ms","timestamp":"2026-10-02 02:41:47"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.956 ms","timestamp":"2026-10-02 02:41:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.919 ms","timestamp":"2026-10-02 02:41:50"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.487 ms","timestamp":"2026-10-02 02:41:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.991 ms","timestamp":"2026-10-02 02:41:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.413 ms","timestamp":"2026-10-02 02:41:52"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.558 ms","timestamp":"2026-10-02 02:41:52"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.473 ms","timestamp":"2026-10-02 02:41:55"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.833 ms","timestamp":"2026-10-02 02:41:55"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.473 ms","timestamp":"2026-10-02 02:41:55"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.037 ms","timestamp":"2026-10-02 02:41:55"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.132 ms","timestamp":"2026-10-02 02:41:58"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.846 ms","timestamp":"2026-10-02 02:41:58"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.069 ms","timestamp":"2026-10-02 02:42:10"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.351 ms","timestamp":"2026-10-02 02:42:10"}
+{"level":"info","message":"POST /toggleFollowUser 200 72 - 328.798 ms","timestamp":"2026-10-02 02:42:12"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.428 ms","timestamp":"2026-10-02 02:42:15"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.969 ms","timestamp":"2026-10-02 02:42:15"}
+{"level":"info","message":"POST /toggleFollowUser 200 69 - 543.821 ms","timestamp":"2026-10-02 02:42:21"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.671 ms","timestamp":"2026-10-02 02:42:24"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.645 ms","timestamp":"2026-10-02 02:42:24"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 50.863 ms","timestamp":"2026-10-02 02:42:40"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 51.404 ms","timestamp":"2026-10-02 02:42:41"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.343 ms","timestamp":"2026-10-02 02:42:41"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.927 ms","timestamp":"2026-10-02 02:42:41"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.023 ms","timestamp":"2026-10-02 02:42:44"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.056 ms","timestamp":"2026-10-02 02:42:44"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.670 ms","timestamp":"2026-10-02 02:42:44"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.363 ms","timestamp":"2026-10-02 02:42:44"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 1860.415 ms","timestamp":"2026-10-02 02:44:00"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.457 ms","timestamp":"2026-10-02 02:44:00"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2541.768 ms","timestamp":"2026-10-02 02:44:01"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 158.914 ms","timestamp":"2026-10-02 02:44:01"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.344 ms","timestamp":"2026-10-02 02:44:06"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.068 ms","timestamp":"2026-10-02 02:44:06"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.930 ms","timestamp":"2026-10-02 02:44:11"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.789 ms","timestamp":"2026-10-02 02:44:11"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 27.852 ms","timestamp":"2026-10-02 02:44:11"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.003 ms","timestamp":"2026-10-02 02:44:11"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 37.136 ms","timestamp":"2026-10-02 02:44:18"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.185 ms","timestamp":"2026-10-02 02:44:18"}
+{"level":"info","message":"POST /toggleFollowUser 200 72 - 279.440 ms","timestamp":"2026-10-02 02:44:20"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.327 ms","timestamp":"2026-10-02 02:44:22"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.736 ms","timestamp":"2026-10-02 02:44:22"}
+{"level":"info","message":"POST /toggleFollowUser 200 69 - 397.838 ms","timestamp":"2026-10-02 02:44:25"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.406 ms","timestamp":"2026-10-02 02:44:27"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 27.634 ms","timestamp":"2026-10-02 02:44:27"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 02:49:40"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 02:49:40"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 18:39:37"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 18:39:37"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 1676.179 ms","timestamp":"2026-10-02 18:39:39"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 34.484 ms","timestamp":"2026-10-02 18:39:39"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2282.696 ms","timestamp":"2026-10-02 18:39:39"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.881 ms","timestamp":"2026-10-02 18:39:39"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 45.441 ms","timestamp":"2026-10-02 18:39:48"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 33.623 ms","timestamp":"2026-10-02 18:39:48"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 31.002 ms","timestamp":"2026-10-02 18:39:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 32.087 ms","timestamp":"2026-10-02 18:39:50"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 34.810 ms","timestamp":"2026-10-02 18:39:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 35.870 ms","timestamp":"2026-10-02 18:39:50"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.888 ms","timestamp":"2026-10-02 18:39:54"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.608 ms","timestamp":"2026-10-02 18:39:54"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.076 ms","timestamp":"2026-10-02 18:39:57"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.040 ms","timestamp":"2026-10-02 18:39:57"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.741 ms","timestamp":"2026-10-02 18:39:57"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.118 ms","timestamp":"2026-10-02 18:39:57"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.600 ms","timestamp":"2026-10-02 18:40:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 35.290 ms","timestamp":"2026-10-02 18:40:04"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 34.787 ms","timestamp":"2026-10-02 18:40:05"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 37.382 ms","timestamp":"2026-10-02 18:40:05"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 32.658 ms","timestamp":"2026-10-02 18:40:05"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 32.036 ms","timestamp":"2026-10-02 18:40:05"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 1650.853 ms","timestamp":"2026-10-02 21:48:03"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.928 ms","timestamp":"2026-10-02 21:48:03"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 2405.942 ms","timestamp":"2026-10-02 21:48:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.549 ms","timestamp":"2026-10-02 21:48:04"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.118 ms","timestamp":"2026-10-02 21:48:07"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.820 ms","timestamp":"2026-10-02 21:48:07"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.138 ms","timestamp":"2026-10-02 21:48:08"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.725 ms","timestamp":"2026-10-02 21:48:08"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.465 ms","timestamp":"2026-10-02 21:48:08"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.038 ms","timestamp":"2026-10-02 21:48:08"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.199 ms","timestamp":"2026-10-02 21:48:10"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.410 ms","timestamp":"2026-10-02 21:48:10"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.281 ms","timestamp":"2026-10-02 21:48:24"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 31.563 ms","timestamp":"2026-10-02 21:48:24"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.879 ms","timestamp":"2026-10-02 21:48:24"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 32.763 ms","timestamp":"2026-10-02 21:48:24"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-02 22:12:02"}
+{"level":"info","message":"GET /fetchAllStories - - - - ms","timestamp":"2026-10-02 22:12:02"}
+{"level":"info","message":"GET /fetchAllStories 200 2 - 28.658 ms","timestamp":"2026-10-02 22:12:04"}
+{"level":"info","message":"GET /fetchAllPosts 200 392 - 27.892 ms","timestamp":"2026-10-02 22:12:04"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 28.329 ms","timestamp":"2026-10-02 22:12:05"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 28.065 ms","timestamp":"2026-10-02 22:12:05"}
+{"level":"info","message":"GET /fetchAllStories - - - - ms","timestamp":"2026-10-02 22:17:56"}
+{"level":"info","message":"GET /fetchAllStories - - - - ms","timestamp":"2026-10-02 22:17:56"}
+{"level":"info","message":"GET /fetchAllPosts - - - - ms","timestamp":"2026-10-02 22:17:56"}
+{"level":"info","message":"GET /fetchAllStories 200 2 - 29.447 ms","timestamp":"2026-10-02 22:17:57"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.479 ms","timestamp":"2026-10-02 22:17:57"}
+{"level":"info","message":"GET /fetchAllPosts 200 392 - 829.961 ms","timestamp":"2026-10-02 22:17:58"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.141 ms","timestamp":"2026-10-02 22:17:58"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 899.501 ms","timestamp":"2026-10-02 22:19:06"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 30.453 ms","timestamp":"2026-10-02 22:19:06"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 1405.755 ms","timestamp":"2026-10-02 22:19:06"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 38.653 ms","timestamp":"2026-10-02 22:19:06"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.294 ms","timestamp":"2026-10-02 22:19:08"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.318 ms","timestamp":"2026-10-02 22:19:08"}
+{"level":"info","message":"GET /fetchAllStories 304 - - 29.319 ms","timestamp":"2026-10-02 22:19:08"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 29.111 ms","timestamp":"2026-10-02 22:19:08"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 22:21:51"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 22:21:51"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-02 22:21:52"}
+{"level":"info","message":"📡 [Redis] Initial Ping: PONG","timestamp":"2026-10-02 22:21:53"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 1978.738 ms","timestamp":"2026-10-02 22:26:54"}
+{"level":"info","message":"GET /fetchAllPosts 304 - - 30.696 ms","timestamp":"2026-10-02 22:26:54"}
+{"level":"info","message":"🚀 Server running on port 6001","timestamp":"2026-10-03 01:31:08"}

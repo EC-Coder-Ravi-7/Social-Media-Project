@@ -37,6 +37,10 @@ export const addNotificationJob = async (type, payload, deduplicationKey = null)
     console.log(`📥 [Queue] Job enqueued: ${type} (ID: ${job.id})`);
     return job;
   } catch (err) {
-    console.error(`❌ [Queue Error] Failed to enqueue ${type}:`, err.message);
+    console.error(
+      `❌ [Queue Error] Failed to enqueue ${type}:`,
+      err
+    );
+    throw err;
   }
 };

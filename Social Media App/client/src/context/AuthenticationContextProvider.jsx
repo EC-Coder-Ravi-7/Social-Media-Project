@@ -26,7 +26,11 @@ export const AuthenticationContextProvider = ({ children }) => {
 
         // Save authenticated user details
         localStorage.setItem('token', res.data.token);
+
         localStorage.setItem('userId', user.id);
+        socket.emit('join-user-room', { userId: user.id });
+        console.log('🔔 Logged-in user joined notification room:', user.id);
+
         localStorage.setItem('_id', user.id);
         localStorage.setItem('userName', user.username);
         socket.emit('join-user-room', {

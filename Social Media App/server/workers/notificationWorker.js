@@ -25,18 +25,28 @@ export const initNotificationWorker = (io) => {
 
       switch (job.name) {
         case 'FOLLOW_NOTIFICATION': {
-          const { followerId, followerUsername, followerProfilePic, targetUserId } = job.data;
+          const {
+            followerId,
+            followerUsername,
+            followerProfilePic,
+            targetUserId,
+          } = job.data;
+
           if (io) {
-            io.to(targetUserId).emit('new-notification', {
+            io.to(String(targetUserId)).emit('new-notification', {
               type: 'FOLLOW',
               user: followerUsername,
               userPic: followerProfilePic,
-              message: 'started following you.',
+              action: 'started following you',
               followerId,
               timestamp: new Date(),
             });
           }
-          console.log(`🔔 [Worker] Dispatched follow alert to ${targetUserId}`);
+
+          console.log(
+            `🔔 [Worker] Dispatched follow alert to room ${String(targetUserId)}`
+          );
+
           break;
         }
 

@@ -4,11 +4,16 @@ export const SocketHandler = (io) => {
   io.on('connection', (socket) => {
     
     socket.on('join-user-room', ({ userId }) => {
-      if (!userId) return;
+      if (!userId) {
+        console.log('⚠️ join-user-room called without userId');
+        return;
+      }
 
-      socket.join(userId);
+      socket.join(String(userId));
 
-      console.log(`Socket ${socket.id} joined user room: ${userId}`);
+      console.log(
+        `🔔 Socket ${socket.id} joined notification room: ${String(userId)}`
+      );
     });
 
     // 1. Fetch Profile
