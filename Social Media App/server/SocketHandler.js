@@ -18,6 +18,26 @@ export const SocketHandler = (io) => {
       );
     });
 
+    // Send Direct Message
+    socket.on('send-message', (message) => {
+      try {
+        const { senderId, receiverId, text } = message;
+
+        if (!senderId || !receiverId || !text) {
+          console.log('⚠️ Invalid message received:', message);
+          return;
+        }
+
+        io.to(String(receiverId)).emit('receive-message', message);
+
+        console.log(
+          `💬 Message sent from ${senderId} to ${receiverId}: ${text}`
+        );
+      } catch (err) {
+        console.error('❌ Socket send-message error:', err);
+      }
+    });
+
     // 1. Fetch Profile
     socket.on('fetch-profile', async ({ _id }) => {
       try {

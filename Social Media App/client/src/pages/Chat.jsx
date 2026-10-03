@@ -10,6 +10,15 @@ import axios from 'axios';
 const Chat = () => {
   const { socket } = useContext(GeneralContext);
   const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    socket.emit('join-user-room', { userId });
+
+    console.log('💬 Joined chat room:', userId);
+  }, [socket, userId]);
+
   const currentUsername = localStorage.getItem('username');
 
   const [searchUser, setSearchUser] = useState('');
@@ -39,10 +48,7 @@ const Chat = () => {
         }));
 
         setUsersList(contacts);
-
-        if (contacts.length > 0 && !activeChatUser) {
-          setActiveChatUser(contacts[0]);
-        } else if (contacts.length === 0) {
+        if (contacts.length === 0) {
           setActiveChatUser(null);
         }
       } catch (err) {
@@ -118,7 +124,10 @@ const Chat = () => {
                 <div
                   key={user.id}
                   className={`igConversationCard ${activeChatUser?.id === user.id ? 'active' : ''}`}
-                  onClick={() => setActiveChatUser(user)}
+                  onClick={() => {
+                    setActiveChatUser(user);
+                    setMessages([]);
+                  }}
                 >
                   <img src={user.profilePic} alt={user.username} className="contactAvatar" />
                   <div className="contactInfo">
