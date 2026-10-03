@@ -25,6 +25,10 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
 
+  const [showFollowList, setShowFollowList] = useState(false);
+  const [followListType, setFollowListType] = useState('followers');
+  const [followListUsers, setFollowListUsers] = useState([]);    
+
   const [isEditing, setIsEditing] = useState(false);
   const [editPicFile, setEditPicFile] = useState(null);
   const [editUsername, setEditUsername] = useState('');
@@ -55,6 +59,22 @@ const Profile = () => {
       socket.off('profile-fetched', handleProfileFetched);
     };
   }, [socket, id, userId]);
+
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleFollowListFetched = ({ type, users }) => {
+      setFollowListType(type);
+      setFollowListUsers(users || []);
+    };
+
+    socket.on('follow-list-fetched', handleFollowListFetched);
+
+    return () => {
+      socket.off('follow-list-fetched', handleFollowListFetched);
+    };
+  }, [socket]);
 
   const fetchPosts = async () => {
     try {
@@ -171,6 +191,29 @@ const Profile = () => {
   const displayAbout =
     userProfile?.about || (isOwnProfile ? 'Hey there! I am using SocialX.' : 'No bio yet.');
 
+
+  const handleFollowList = (type) => {
+    if (!socket || !userProfile) return;
+
+    const userIds =
+      type === 'followers'
+        ? userProfile.followers || []
+        : userProfile.following || [];
+
+    setFollowListType(type);
+    setShowFollowList(true);
+
+    if (userIds.length === 0) {
+      setFollowListUsers([]);
+      return;
+    }
+
+    socket.emit('fetch-follow-list', {
+      userIds,
+      type,
+    });
+  };
+
   return (
     <div className="igProfileRoot">
       <Navbar />
@@ -218,11 +261,22 @@ const Profile = () => {
               <li>
                 <span className="igStatCount">{userPosts.length}</span> posts
               </li>
-              <li>
+
+              <li
+                className="igClickableStat"
+                onClick={() => handleFollowList('followers')}
+              >
                 <span className="igStatCount">{followersCount}</span> followers
               </li>
-              <li>
-                <span className="igStatCount">{userProfile?.following?.length || 0}</span> following
+
+              <li
+                className="igClickableStat"
+                onClick={() => handleFollowList('following')}
+              >
+                <span className="igStatCount">
+                  {userProfile?.following?.length || 0}
+                </span>{' '}
+                following
               </li>
             </ul>
 
@@ -340,6 +394,71 @@ const Profile = () => {
                 {isSaving ? 'Submitting...' : 'Submit'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showFollowList && (
+        <div
+          className="igModalOverlay"
+          onClick={() => setShowFollowList(false)}
+        >
+          <div
+            className="igFollowListDialog"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="igFollowListHeader">
+              <h3>
+                {followListType === 'followers'
+                  ? 'Followers'
+                  : 'Following'}
+              </h3>
+
+              <RxCross2
+                className="igModalDialogClose"
+                onClick={() => setShowFollowList(false)}
+              />
+            </div>
+
+            <div className="igFollowList">
+              {followListUsers.length === 0 ? (
+                <p className="igNoFollowUsers">
+                  {followListType === 'followers'
+                    ? 'No followers yet'
+                    : 'Not following anyone yet'}
+                </p>
+              ) : (
+                followListUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className="igFollowUserItem"
+                    onClick={() => {
+                      setShowFollowList(false);
+                      navigate(`/profile/${user.id}`);
+                    }}
+                  >
+                    <img
+                      src={user.profilePic || navProfile}
+                      alt={user.username}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = navProfile;
+                      }}
+                    />
+
+                    <div className="igFollowUserInfo">
+                      <span className="igFollowUsername">
+                        {user.username}
+                      </span>
+
+                      <span className="igFollowFullName">
+                        {user.fullName || ''}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -130,6 +130,40 @@ export const SocketHandler = (io) => {
       }
     });
 
+    // Fetch followers / following users
+    socket.on('fetch-follow-list', async ({ userIds, type }) => {
+      try {
+        if (!Array.isArray(userIds) || userIds.length === 0) {
+          socket.emit('follow-list-fetched', {
+            type,
+            users: [],
+          });
+          return;
+        }
+
+        const users = await prisma.user.findMany({
+          where: {
+            id: {
+              in: userIds,
+            },
+          },
+          select: {
+            id: true,
+            username: true,
+            profilePic: true,
+            fullName: true,
+          },
+        });
+
+        socket.emit('follow-list-fetched', {
+          type,
+          users,
+        });
+      } catch (err) {
+        console.error('Socket fetch-follow-list error:', err);
+      }
+    });
+
     // 2. Update Profile
     socket.on('updateProfile', async ({ userId, profilePic, username, about }) => {
       try {
