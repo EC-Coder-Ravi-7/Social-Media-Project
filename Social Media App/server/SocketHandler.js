@@ -1,11 +1,10 @@
-import prisma from './db.js';
+import prisma from "./db.js";
 
 export const SocketHandler = (io) => {
-  io.on('connection', (socket) => {
-    
-    socket.on('join-user-room', ({ userId }) => {
+  io.on("connection", (socket) => {
+    socket.on("join-user-room", ({ userId }) => {
       if (!userId) {
-        console.log('⚠️ join-user-room received without userId');
+        console.log("⚠️ join-user-room received without userId");
         return;
       }
 
@@ -13,59 +12,54 @@ export const SocketHandler = (io) => {
 
       socket.join(roomId);
 
-      console.log(
-        `🔔 Socket ${socket.id} joined notification room: ${roomId}`
-      );
+      console.log(`🔔 Socket ${socket.id} joined notification room: ${roomId}`);
     });
 
-    socket.on('fetch-chat-history', async ({ userId, otherUserId }) => {
-        try {
-          if (!userId || !otherUserId) return;
+    socket.on("fetch-chat-history", async ({ userId, otherUserId }) => {
+      try {
+        if (!userId || !otherUserId) return;
 
-          const messages = await prisma.message.findMany({
-            where: {
-              OR: [
-                {
-                  senderId: userId,
-                  receiverId: otherUserId,
-                },
-                {
-                  senderId: otherUserId,
-                  receiverId: userId,
-                },
-              ],
-            },
-            orderBy: {
-              createdAt: 'asc',
-            },
-          });
+        const messages = await prisma.message.findMany({
+          where: {
+            OR: [
+              {
+                senderId: userId,
+                receiverId: otherUserId,
+              },
+              {
+                senderId: otherUserId,
+                receiverId: userId,
+              },
+            ],
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        });
 
-          socket.emit('chat-history', {
-            otherUserId,
-            messages: messages.map((message) => ({
-              id: message.id,
-              senderId: message.senderId,
-              receiverId: message.receiverId,
-              text: message.text,
-              timestamp: message.createdAt.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-            })),
-          });
-        } catch (err) {
-          console.error('Socket fetch-chat-history error:', err);
-        }
-      });
+        socket.emit("chat-history", {
+          otherUserId,
+          messages: messages.map((message) => ({
+            id: message.id,
+            senderId: message.senderId,
+            receiverId: message.receiverId,
+            text: message.text,
+            timestamp: message.createdAt.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            createdAt: message.createdAt.toISOString(),
+          })),
+        });
+      } catch (err) {
+        console.error("Socket fetch-chat-history error:", err);
+      }
+    });
 
     // Send Direct Message
-    socket.on('send-message', async (data) => {
+    socket.on("send-message", async (data) => {
       try {
-        const {
-          senderId,
-          receiverId,
-          text,
-        } = data;
+        const { senderId, receiverId, text } = data;
 
         if (!senderId || !receiverId || !text?.trim()) {
           return;
@@ -85,22 +79,22 @@ export const SocketHandler = (io) => {
           receiverId: message.receiverId,
           text: message.text,
           timestamp: message.createdAt.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
+            hour: "2-digit",
+            minute: "2-digit",
           }),
+          createdAt: message.createdAt.toISOString(),
         };
 
         // Send the saved message to both users
-        io.to(String(senderId)).emit('receive-message', formattedMessage);
-        io.to(String(receiverId)).emit('receive-message', formattedMessage);
-
+        io.to(String(senderId)).emit("receive-message", formattedMessage);
+        io.to(String(receiverId)).emit("receive-message", formattedMessage);
       } catch (err) {
-        console.error('Socket send-message error:', err);
+        console.error("Socket send-message error:", err);
       }
     });
 
     // 1. Fetch Profile
-    socket.on('fetch-profile', async ({ _id }) => {
+    socket.on("fetch-profile", async ({ _id }) => {
       try {
         if (!_id) return;
 
@@ -108,7 +102,7 @@ export const SocketHandler = (io) => {
           where: { id: _id },
           include: {
             followedBy: true, // followers
-            following: true,  // following
+            following: true, // following
           },
         });
 
@@ -123,18 +117,18 @@ export const SocketHandler = (io) => {
             following: user.following.map((f) => f.followingId),
           };
 
-          socket.emit('profile-fetched', { profile: formattedProfile });
+          socket.emit("profile-fetched", { profile: formattedProfile });
         }
       } catch (err) {
-        console.error('Socket fetch-profile error:', err);
+        console.error("Socket fetch-profile error:", err);
       }
     });
 
     // Fetch followers / following users
-    socket.on('fetch-follow-list', async ({ userIds, type }) => {
+    socket.on("fetch-follow-list", async ({ userIds, type }) => {
       try {
         if (!Array.isArray(userIds) || userIds.length === 0) {
-          socket.emit('follow-list-fetched', {
+          socket.emit("follow-list-fetched", {
             type,
             users: [],
           });
@@ -155,16 +149,16 @@ export const SocketHandler = (io) => {
           },
         });
 
-        socket.emit('follow-list-fetched', {
+        socket.emit("follow-list-fetched", {
           type,
           users,
         });
       } catch (err) {
-        console.error('Socket fetch-follow-list error:', err);
+        console.error("Socket fetch-follow-list error:", err);
       }
     });
 
-    socket.on('fetch-my-following', async ({ userId }) => {
+    socket.on("fetch-my-following", async ({ userId }) => {
       try {
         if (!userId) return;
 
@@ -177,48 +171,51 @@ export const SocketHandler = (io) => {
           },
         });
 
-        socket.emit('my-following-fetched', {
+        socket.emit("my-following-fetched", {
           following: following.map((f) => f.followingId),
         });
       } catch (err) {
-        console.error('Socket fetch-my-following error:', err);
+        console.error("Socket fetch-my-following error:", err);
       }
     });
 
     // 2. Update Profile
-    socket.on('updateProfile', async ({ userId, profilePic, username, about }) => {
-      try {
-        const updatedUser = await prisma.user.update({
-          where: { id: userId },
-          data: {
-            profilePic: profilePic || undefined,
-            username: username || undefined,
-            about: about || undefined,
-          },
-          include: {
-            followedBy: true,
-            following: true,
-          },
-        });
+    socket.on(
+      "updateProfile",
+      async ({ userId, profilePic, username, about }) => {
+        try {
+          const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+              profilePic: profilePic || undefined,
+              username: username || undefined,
+              about: about || undefined,
+            },
+            include: {
+              followedBy: true,
+              following: true,
+            },
+          });
 
-        const formattedProfile = {
-          _id: updatedUser.id,
-          username: updatedUser.username,
-          email: updatedUser.email,
-          profilePic: updatedUser.profilePic,
-          about: updatedUser.about,
-          followers: updatedUser.followedBy.map((f) => f.followerId),
-          following: updatedUser.following.map((f) => f.followingId),
-        };
+          const formattedProfile = {
+            _id: updatedUser.id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            profilePic: updatedUser.profilePic,
+            about: updatedUser.about,
+            followers: updatedUser.followedBy.map((f) => f.followerId),
+            following: updatedUser.following.map((f) => f.followingId),
+          };
 
-        io.emit('profile-fetched', { profile: formattedProfile });
-      } catch (err) {
-        console.error('Socket updateProfile error:', err);
-      }
-    });
+          io.emit("profile-fetched", { profile: formattedProfile });
+        } catch (err) {
+          console.error("Socket updateProfile error:", err);
+        }
+      },
+    );
 
     // 3. Like Post
-    socket.on('postLiked', async ({ userId, postId }) => {
+    socket.on("postLiked", async ({ userId, postId }) => {
       try {
         await prisma.like.upsert({
           where: {
@@ -233,17 +230,17 @@ export const SocketHandler = (io) => {
           select: { userId: true },
         });
 
-        io.emit('post-liked-updated', {
+        io.emit("post-liked-updated", {
           postId,
           likes: updatedLikes.map((l) => l.userId),
         });
       } catch (err) {
-        console.error('Socket like error:', err);
+        console.error("Socket like error:", err);
       }
     });
 
     // 4. Unlike Post
-    socket.on('postUnLiked', async ({ userId, postId }) => {
+    socket.on("postUnLiked", async ({ userId, postId }) => {
       try {
         await prisma.like.deleteMany({
           where: { userId, postId },
@@ -254,17 +251,17 @@ export const SocketHandler = (io) => {
           select: { userId: true },
         });
 
-        io.emit('post-liked-updated', {
+        io.emit("post-liked-updated", {
           postId,
           likes: updatedLikes.map((l) => l.userId),
         });
       } catch (err) {
-        console.error('Socket unlike error:', err);
+        console.error("Socket unlike error:", err);
       }
     });
 
     // 5. Follow User
-    socket.on('followUser', async ({ ownId, followingUserId }) => {
+    socket.on("followUser", async ({ ownId, followingUserId }) => {
       try {
         if (ownId === followingUserId) return;
 
@@ -287,16 +284,16 @@ export const SocketHandler = (io) => {
           select: { followingId: true },
         });
 
-        socket.emit('userFollowed', {
+        socket.emit("userFollowed", {
           following: userFollowing.map((f) => f.followingId),
         });
       } catch (err) {
-        console.error('Socket follow error:', err);
+        console.error("Socket follow error:", err);
       }
     });
 
     // 6. Unfollow User
-    socket.on('unFollowUser', async ({ ownId, followingUserId }) => {
+    socket.on("unFollowUser", async ({ ownId, followingUserId }) => {
       try {
         await prisma.follow.deleteMany({
           where: {
@@ -310,16 +307,16 @@ export const SocketHandler = (io) => {
           select: { followingId: true },
         });
 
-        socket.emit('userUnFollowed', {
+        socket.emit("userUnFollowed", {
           following: userFollowing.map((f) => f.followingId),
         });
       } catch (err) {
-        console.error('Socket unfollow error:', err);
+        console.error("Socket unfollow error:", err);
       }
     });
 
     // 7. Add Comment
-    socket.on('makeComment', async ({ postId, username, comment }) => {
+    socket.on("makeComment", async ({ postId, username, comment }) => {
       try {
         const user = await prisma.user.findUnique({
           where: { username },
@@ -342,24 +339,24 @@ export const SocketHandler = (io) => {
           },
         });
 
-        io.emit('comment-added', {
+        io.emit("comment-added", {
           postId,
           comments: comments.map((c) => [c.user.username, c.text]),
         });
       } catch (err) {
-        console.error('Socket makeComment error:', err);
+        console.error("Socket makeComment error:", err);
       }
     });
 
     // 8. Delete Post
-    socket.on('delete-post', async ({ postId }) => {
+    socket.on("delete-post", async ({ postId }) => {
       try {
         await prisma.post.delete({
           where: { id: postId },
         });
 
         const posts = await prisma.post.findMany({
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           include: {
             likes: true,
             comments: {
@@ -382,19 +379,19 @@ export const SocketHandler = (io) => {
           createdAt: post.createdAt,
         }));
 
-        io.emit('post-deleted', { posts: formattedPosts });
+        io.emit("post-deleted", { posts: formattedPosts });
       } catch (err) {
-        console.error('Socket delete-post error:', err);
+        console.error("Socket delete-post error:", err);
       }
     });
 
     // 9. Search User
-    socket.on('user-search', async ({ username }) => {
+    socket.on("user-search", async ({ username }) => {
       try {
         const searchUsername = username?.trim();
 
         if (!searchUsername) {
-          socket.emit('searched-user', { user: null });
+          socket.emit("searched-user", { user: null });
           return;
         }
 
@@ -402,7 +399,7 @@ export const SocketHandler = (io) => {
           where: {
             username: {
               equals: searchUsername,
-              mode: 'insensitive',
+              mode: "insensitive",
             },
           },
           select: {
@@ -415,11 +412,11 @@ export const SocketHandler = (io) => {
         });
 
         if (!user) {
-          socket.emit('searched-user', { user: null });
+          socket.emit("searched-user", { user: null });
           return;
         }
 
-        socket.emit('searched-user', {
+        socket.emit("searched-user", {
           user: {
             _id: user.id,
             username: user.username,
@@ -429,13 +426,13 @@ export const SocketHandler = (io) => {
           },
         });
       } catch (err) {
-        console.error('Socket user-search error:', err);
-        socket.emit('searched-user', { user: null });
+        console.error("Socket user-search error:", err);
+        socket.emit("searched-user", { user: null });
       }
     });
 
-    socket.on('disconnect', () => {
-      console.log('User disconnected from socket:', socket.id);
+    socket.on("disconnect", () => {
+      console.log("User disconnected from socket:", socket.id);
     });
   });
 };
