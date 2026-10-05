@@ -28,6 +28,13 @@ model User {
   followedBy  Follow[]  @relation("following")
   following   Follow[]  @relation("follower")
 
+  sentRequests     MessageRequest[] @relation("sentRequests")
+  receivedRequests MessageRequest[] @relation("receivedRequests")
+
+  messageReactions MessageReaction[] @relation("userReactions")
+
+  lastActiveAt DateTime?
+
   @@index([email])
   @@index([username])
 }
@@ -115,9 +122,65 @@ model Message {
   text       String   @db.Text
   createdAt  DateTime @default(now())
 
+  // Reply to another message
+  replyToId String?
+
+  // Used for the first message of a private message request
+  requestId String?
+
   sender   User @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiver User @relation("receivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
 
+  replyTo Message?  @relation("messageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies Message[]  @relation("messageReplies")
+
+  request MessageRequest? @relation("requestMessages", fields: [requestId], references: [id], onDelete: SetNull)
+
+  reactions MessageReaction[]
+
   @@index([senderId, receiverId, createdAt])
   @@index([receiverId, senderId, createdAt])
+  @@index([replyToId])
+  @@index([requestId])
+}
+
+
+enum MessageRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model MessageRequest {
+  id          String               @id @default(uuid())
+  requesterId String
+  recipientId String
+  status      MessageRequestStatus @default(PENDING)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  requester User @relation("sentRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient User @relation("receivedRequests", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  messages Message[] @relation("requestMessages")
+
+  @@unique([requesterId, recipientId])
+  @@index([recipientId, status])
+  @@index([requesterId, status])
+}
+
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation("userReactions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
 }

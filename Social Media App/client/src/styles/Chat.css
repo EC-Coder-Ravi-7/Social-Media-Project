@@ -399,3 +399,45 @@
 .igBubble p {
   margin: 0;
 }
+
+.replyPreview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-left: 3px solid #0095f6;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.replyPreviewContent {
+  min-width: 0;
+}
+
+.replyPreviewContent span {
+  display: block;
+  font-size: 10px;
+  color: #8e8e8e;
+  margin-bottom: 2px;
+}
+
+.replyPreviewContent p {
+  margin: 0;
+  font-size: 12px;
+  color: #262626;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.replyCancelBtn {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: #8e8e8e;
+  cursor: pointer;
+  padding: 2px 6px;
+}

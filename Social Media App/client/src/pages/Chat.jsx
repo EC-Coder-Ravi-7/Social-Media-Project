@@ -335,6 +335,23 @@ const Chat = () => {
               </div>
 
               <form className="igChatInputArea" onSubmit={handleSendMessage}>
+                {replyingTo && (
+                  <div className="replyPreview">
+                    <div className="replyPreviewContent">
+                      <span>Replying to</span>
+                      <p>{replyingTo.text}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="replyCancelBtn"
+                      onClick={() => setReplyingTo(null)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
                 <div className="igInputBoxWrapper">
                   <input
                     type="text"
@@ -355,6 +372,7 @@ const Chat = () => {
                   </button>
                 </div>
               </form>
+
             </>
           ) : (
             <div className="noChatSelected">
