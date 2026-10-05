@@ -11,14 +11,6 @@ const Chat = () => {
   const { socket } = useContext(GeneralContext);
   const userId = localStorage.getItem('userId');
 
-  useEffect(() => {
-    if (!socket || !userId) return;
-
-    socket.emit('join-user-room', { userId });
-
-    console.log('💬 Joined chat room:', userId);
-  }, [socket, userId]);
-
   const currentUsername = localStorage.getItem('username');
 
   const [searchUser, setSearchUser] = useState('');

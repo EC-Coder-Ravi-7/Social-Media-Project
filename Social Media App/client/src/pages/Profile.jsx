@@ -27,7 +27,8 @@ const Profile = () => {
 
   const [showFollowList, setShowFollowList] = useState(false);
   const [followListType, setFollowListType] = useState('followers');
-  const [followListUsers, setFollowListUsers] = useState([]);    
+  const [followListUsers, setFollowListUsers] = useState([]);
+  const [myFollowingIds, setMyFollowingIds] = useState([]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editPicFile, setEditPicFile] = useState(null);
@@ -75,6 +76,24 @@ const Profile = () => {
       socket.off('follow-list-fetched', handleFollowListFetched);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    const handleMyFollowingFetched = ({ following }) => {
+      setMyFollowingIds(following || []);
+    };
+
+    socket.on('my-following-fetched', handleMyFollowingFetched);
+
+    socket.emit('fetch-my-following', {
+      userId,
+    });
+
+    return () => {
+      socket.off('my-following-fetched', handleMyFollowingFetched);
+    };
+  }, [socket, userId]);
 
   const fetchPosts = async () => {
     try {
@@ -212,6 +231,32 @@ const Profile = () => {
       userIds,
       type,
     });
+  };
+
+  const handleFollowListToggle = async (targetUserId) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:6001/toggleFollowUser',
+        {
+          userId,
+          targetId: targetUserId,
+        }
+      );
+
+      if (res.status === 200) {
+        const isFollowingNow = res.data.isFollowing;
+
+        setMyFollowingIds((prev) => {
+          if (isFollowingNow) {
+            return [...new Set([...prev, targetUserId])];
+          }
+
+          return prev.filter((id) => id !== targetUserId);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to toggle follow from list:', err);
+    }
   };
 
   return (
@@ -455,6 +500,21 @@ const Profile = () => {
                         {user.fullName || ''}
                       </span>
                     </div>
+
+                    <button
+                      className={
+                        myFollowingIds.includes(user.id)
+                          ? 'igFollowListBtn igFollowingListBtn'
+                          : 'igFollowListBtn'
+                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFollowListToggle(user.id);
+                      }}
+                    >
+                      {myFollowingIds.includes(user.id) ? 'Following' : 'Follow'}
+                    </button>
+
                   </div>
                 ))
               )}

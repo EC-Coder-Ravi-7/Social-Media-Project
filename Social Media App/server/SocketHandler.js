@@ -164,6 +164,27 @@ export const SocketHandler = (io) => {
       }
     });
 
+    socket.on('fetch-my-following', async ({ userId }) => {
+      try {
+        if (!userId) return;
+
+        const following = await prisma.follow.findMany({
+          where: {
+            followerId: userId,
+          },
+          select: {
+            followingId: true,
+          },
+        });
+
+        socket.emit('my-following-fetched', {
+          following: following.map((f) => f.followingId),
+        });
+      } catch (err) {
+        console.error('Socket fetch-my-following error:', err);
+      }
+    });
+
     // 2. Update Profile
     socket.on('updateProfile', async ({ userId, profilePic, username, about }) => {
       try {

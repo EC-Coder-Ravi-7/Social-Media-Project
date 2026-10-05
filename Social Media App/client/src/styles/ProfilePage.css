@@ -651,3 +651,29 @@
   color: #8e8e8e;
   font-size: 14px;
 }
+
+.igFollowListBtn {
+  margin-left: auto;
+  min-width: 90px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 7px;
+  background: #0095f6;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.igFollowListBtn:hover {
+  background: #1877f2;
+}
+
+.igFollowingListBtn {
+  background: #efefef;
+  color: #262626;
+}
+
+.igFollowingListBtn:hover {
+  background: #dbdbdb;
+}
