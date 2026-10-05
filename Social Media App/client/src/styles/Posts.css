@@ -119,3 +119,34 @@
 .commentsBody p {
   margin-bottom: 3px;
 }
+
+
+.postTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.postFollowBtn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  background: #0095f6;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.postFollowBtn:hover {
+  background: #1877f2;
+}
+
+.postFollowingBtn {
+  background: #efefef;
+  color: #262626;
+}
+
+.postFollowingBtn:hover {
+  background: #dbdbdb;
+}

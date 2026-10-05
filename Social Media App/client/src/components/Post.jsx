@@ -13,6 +13,7 @@ const Post = () => {
   const [posts, setPosts] = useState([]);
   const [comment, setComment] = useState('');
   const [activeCommentPostId, setActiveCommentPostId] = useState(null);
+  const [myFollowingIds, setMyFollowingIds] = useState([]);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -61,6 +62,24 @@ const Post = () => {
     };
   }, [socket]);
 
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    const handleMyFollowingFetched = ({ following }) => {
+      setMyFollowingIds(following || []);
+    };
+
+    socket.on('my-following-fetched', handleMyFollowingFetched);
+
+    socket.emit('fetch-my-following', {
+      userId,
+    });
+
+    return () => {
+      socket.off('my-following-fetched', handleMyFollowingFetched);
+    };
+  }, [socket, userId]);
+
   const handleLike = (postId) => {
     if (!userId || !socket) return;
     socket.emit('postLiked', { userId, postId });
@@ -77,6 +96,30 @@ const Post = () => {
     setComment('');
   };
 
+  const handleToggleFollow = async (targetId) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:6001/toggleFollowUser',
+        {
+          userId,
+          targetId,
+        }
+      );
+
+      if (res.data?.isFollowing) {
+        setMyFollowingIds((prev) => [
+          ...new Set([...prev, targetId]),
+        ]);
+      } else {
+        setMyFollowingIds((prev) =>
+          prev.filter((id) => id !== targetId)
+        );
+      }
+    } catch (err) {
+      console.error('Failed to toggle follow:', err);
+    }
+  };
+
   return (
     <div className="posts">
       {posts.map((post) => {
@@ -86,6 +129,7 @@ const Post = () => {
 
         return (
           <div className="Post" key={post._id}>
+
             <div className="postTop">
               <div
                 className="postTopDetails"
@@ -97,8 +141,27 @@ const Post = () => {
                   alt={post.userName}
                   className="userpic"
                 />
+
                 <h3 className="usernameTop">{post.userName}</h3>
               </div>
+
+              {post.userId !== userId && (
+                <button
+                  className={
+                    myFollowingIds.includes(post.userId)
+                      ? 'postFollowBtn postFollowingBtn'
+                      : 'postFollowBtn'
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleFollow(post.userId);
+                  }}
+                >
+                  {myFollowingIds.includes(post.userId)
+                    ? 'Following'
+                    : 'Follow'}
+                </button>
+              )}
             </div>
 
             {post.fileType === 'video' ? (
