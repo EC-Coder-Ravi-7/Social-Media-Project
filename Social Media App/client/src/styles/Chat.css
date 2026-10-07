@@ -487,3 +487,8 @@
 .igBubble.theirs .repliedMessage {
   background: rgba(0, 0, 0, 0.05);
 }
+
+.typingStatus {
+  color: #0095f6 !important;
+  font-weight: 600;
+}

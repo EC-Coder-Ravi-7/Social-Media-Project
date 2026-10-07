@@ -154,6 +154,24 @@ export const SocketHandler = (io) => {
       }
     });
 
+    // User started typing
+    socket.on("typing-started", ({ senderId, receiverId }) => {
+      if (!senderId || !receiverId) return;
+
+      io.to(String(receiverId)).emit("user-typing", {
+        senderId: String(senderId),
+      });
+    });
+
+    // User stopped typing
+    socket.on("typing-stopped", ({ senderId, receiverId }) => {
+      if (!senderId || !receiverId) return;
+
+      io.to(String(receiverId)).emit("user-stopped-typing", {
+        senderId: String(senderId),
+      });
+    });
+
     // 1. Fetch Profile
     socket.on("fetch-profile", async ({ _id }) => {
       try {

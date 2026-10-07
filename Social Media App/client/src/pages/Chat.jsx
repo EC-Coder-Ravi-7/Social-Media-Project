@@ -28,7 +28,11 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
 
   const [typedMessage, setTypedMessage] = useState("");
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+
   const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const isTypingRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,12 +85,30 @@ const Chat = () => {
       }
     };
 
+    const handleUserTyping = ({ senderId }) => {
+      if (senderId === activeChatUser.id) {
+        setIsOtherUserTyping(true);
+      }
+    };
+
+    const handleUserStoppedTyping = ({ senderId }) => {
+      if (senderId === activeChatUser.id) {
+        setIsOtherUserTyping(false);
+      }
+    };
+
     socket.on("receive-message", handleNewMessage);
     socket.on("chat-history", handleChatHistory);
+
+    socket.on("user-typing", handleUserTyping);
+    socket.on("user-stopped-typing", handleUserStoppedTyping);
 
     return () => {
       socket.off("receive-message", handleNewMessage);
       socket.off("chat-history", handleChatHistory);
+
+      socket.off("user-typing", handleUserTyping);
+      socket.off("user-stopped-typing", handleUserStoppedTyping);
     };
   }, [socket, activeChatUser, userId]);
 
@@ -94,12 +116,49 @@ const Chat = () => {
     if (!socket || !activeChatUser || !userId) return;
 
     setMessages([]);
+    setIsOtherUserTyping(false);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    isTypingRef.current = false;
 
     socket.emit("fetch-chat-history", {
       userId,
       otherUserId: activeChatUser.id,
     });
   }, [socket, activeChatUser, userId]);
+
+  const handleTyping = (value) => {
+    setTypedMessage(value);
+
+    if (!socket || !activeChatUser || !userId) return;
+
+    // Tell receiver that user started typing
+    if (!isTypingRef.current) {
+      socket.emit("typing-started", {
+        senderId: userId,
+        receiverId: activeChatUser.id,
+      });
+
+      isTypingRef.current = true;
+    }
+
+    // Reset the stop-typing timer
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("typing-stopped", {
+        senderId: userId,
+        receiverId: activeChatUser.id,
+      });
+
+      isTypingRef.current = false;
+    }, 1500);
+  };
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -120,6 +179,18 @@ const Chat = () => {
     };
 
     socket.emit("send-message", newMsg);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    socket.emit("typing-stopped", {
+      senderId: userId,
+      receiverId: activeChatUser.id,
+    });
+
+    isTypingRef.current = false;
+
     setTypedMessage("");
     setReplyingTo(null);
     setReplyingMessageId(null);
@@ -300,7 +371,10 @@ const Chat = () => {
                 />
                 <div className="activeUserMeta">
                   <h4>{activeChatUser.username}</h4>
-                  <span>Active now</span>
+
+                  <span className={isOtherUserTyping ? "typingStatus" : ""}>
+                    {isOtherUserTyping ? "Typing..." : "Active now"}
+                  </span>
                 </div>
               </div>
 
@@ -425,7 +499,7 @@ const Chat = () => {
                     onFocus={() => setSwipedMessageId(null)}
                     onChange={(e) => {
                       setSwipedMessageId(null);
-                      setTypedMessage(e.target.value);
+                      handleTyping(e.target.value);
                     }}
                   />
                   <button
