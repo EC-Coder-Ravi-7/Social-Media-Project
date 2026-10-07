@@ -441,3 +441,49 @@
   cursor: pointer;
   padding: 2px 6px;
 }
+
+/* Message selected for reply */
+.messageSwipeWrapper.replyingMessage .igBubble {
+  box-shadow: 0 0 0 2px #0095f6;
+  transform: scale(1.02);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Replied message inside chat bubble */
+.repliedMessage {
+  padding: 6px 9px;
+  margin-bottom: 6px;
+  border-left: 3px solid currentColor;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  min-width: 0;
+}
+
+.repliedMessageUser {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+
+.repliedMessage p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messageText {
+  margin: 0;
+}
+
+.igBubble.mine .repliedMessage {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.igBubble.theirs .repliedMessage {
+  background: rgba(0, 0, 0, 0.05);
+}

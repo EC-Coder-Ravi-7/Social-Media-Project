@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext } from "react";
 import "../styles/Chat.css";
 import Navbar from "../components/Navbar";
 import { FiSearch, FiSend } from "react-icons/fi";
@@ -20,7 +20,10 @@ const Chat = () => {
   const [swipedMessageId, setSwipedMessageId] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null);
 
-  const touchStartX = useRef(0);
+  const [replyingMessageId, setReplyingMessageId] = useState(null);
+
+  const swipeStartX = useRef(0);
+  const isMouseSwiping = useRef(false);
 
   const [messages, setMessages] = useState([]);
 
@@ -107,6 +110,9 @@ const Chat = () => {
       senderName: currentUsername,
       receiverId: activeChatUser.id,
       text: typedMessage.trim(),
+
+      replyToId: replyingTo?.id || null,
+
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -115,6 +121,8 @@ const Chat = () => {
 
     socket.emit("send-message", newMsg);
     setTypedMessage("");
+    setReplyingTo(null);
+    setReplyingMessageId(null);
   };
 
   const filteredUsers = usersList.filter((u) =>
@@ -149,7 +157,7 @@ const Chat = () => {
 
     const differenceInDays = Math.floor(
       (today.setHours(0, 0, 0, 0) - new Date(date).setHours(0, 0, 0, 0)) /
-      (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
     );
 
     if (differenceInDays < 7) {
@@ -166,16 +174,17 @@ const Chat = () => {
   };
 
   const handleMessageTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
+    swipeStartX.current = e.touches[0].clientX;
   };
 
   const handleMessageTouchEnd = (e, message) => {
     const touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX.current;
+    const swipeDistance = touchEndX - swipeStartX.current;
 
     // Swipe right → Reply
     if (swipeDistance > 60) {
       setReplyingTo(message);
+      setReplyingMessageId(message.id);
       setSwipedMessageId(null);
       return;
     }
@@ -187,6 +196,38 @@ const Chat = () => {
     }
 
     // Small/no swipe → hide timestamp
+    if (Math.abs(swipeDistance) < 30) {
+      setSwipedMessageId(null);
+    }
+  };
+
+  const handleMessageMouseDown = (e) => {
+    swipeStartX.current = e.clientX;
+    isMouseSwiping.current = true;
+  };
+
+  const handleMessageMouseUp = (e, message) => {
+    if (!isMouseSwiping.current) return;
+
+    const swipeDistance = e.clientX - swipeStartX.current;
+
+    isMouseSwiping.current = false;
+
+    // Mouse drag right → Reply
+    if (swipeDistance > 60) {
+      setReplyingTo(message);
+      setReplyingMessageId(message.id);
+      setSwipedMessageId(null);
+      return;
+    }
+
+    // Mouse drag left → Show time
+    if (swipeDistance < -60) {
+      setSwipedMessageId(message.id);
+      return;
+    }
+
+    // Small/no drag → hide timestamp
     if (Math.abs(swipeDistance) < 30) {
       setSwipedMessageId(null);
     }
@@ -298,18 +339,26 @@ const Chat = () => {
                         )}
 
                         <div
-                          className={`messageSwipeWrapper ${swipedMessageId === msg.id ? 'showMessageTime' : ''
-                            }`}
+                          className={`messageSwipeWrapper ${
+                            swipedMessageId === msg.id ? "showMessageTime" : ""
+                          } ${
+                            replyingMessageId === msg.id
+                              ? "replyingMessage"
+                              : ""
+                          }`}
                           onTouchStart={handleMessageTouchStart}
                           onTouchEnd={(e) => handleMessageTouchEnd(e, msg)}
+                          onMouseDown={handleMessageMouseDown}
+                          onMouseUp={(e) => handleMessageMouseUp(e, msg)}
                         >
                           <div className="messageTimeReveal">
                             {msg.timestamp}
                           </div>
 
                           <div
-                            className={`igMessageRow ${isMine ? 'mine' : 'theirs'
-                              }`}
+                            className={`igMessageRow ${
+                              isMine ? "mine" : "theirs"
+                            }`}
                           >
                             {!isMine && (
                               <img
@@ -320,10 +369,23 @@ const Chat = () => {
                             )}
 
                             <div
-                              className={`igBubble ${isMine ? 'mine' : 'theirs'
-                                }`}
+                              className={`igBubble ${
+                                isMine ? "mine" : "theirs"
+                              }`}
                             >
-                              <p>{msg.text}</p>
+                              {msg.replyTo && (
+                                <div className="repliedMessage">
+                                  <span className="repliedMessageUser">
+                                    {msg.replyTo.senderId === userId
+                                      ? "You"
+                                      : activeChatUser.username}
+                                  </span>
+
+                                  <p>{msg.replyTo.text}</p>
+                                </div>
+                              )}
+
+                              <p className="messageText">{msg.text}</p>
                             </div>
                           </div>
                         </div>
@@ -345,7 +407,10 @@ const Chat = () => {
                     <button
                       type="button"
                       className="replyCancelBtn"
-                      onClick={() => setReplyingTo(null)}
+                      onClick={() => {
+                        setReplyingTo(null);
+                        setReplyingMessageId(null);
+                      }}
                     >
                       ×
                     </button>
@@ -372,7 +437,6 @@ const Chat = () => {
                   </button>
                 </div>
               </form>
-
             </>
           ) : (
             <div className="noChatSelected">

@@ -32,6 +32,22 @@ export const SocketHandler = (io) => {
               },
             ],
           },
+          include: {
+            replyTo: {
+              select: {
+                id: true,
+                text: true,
+                senderId: true,
+              },
+            },
+            reactions: {
+              select: {
+                id: true,
+                userId: true,
+                emoji: true,
+              },
+            },
+          },
           orderBy: {
             createdAt: "asc",
           },
@@ -44,10 +60,24 @@ export const SocketHandler = (io) => {
             senderId: message.senderId,
             receiverId: message.receiverId,
             text: message.text,
+
+            replyToId: message.replyToId,
+
+            replyTo: message.replyTo
+              ? {
+                  id: message.replyTo.id,
+                  text: message.replyTo.text,
+                  senderId: message.replyTo.senderId,
+                }
+              : null,
+
+            reactions: message.reactions,
+
             timestamp: message.createdAt.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             }),
+
             createdAt: message.createdAt.toISOString(),
           })),
         });
@@ -59,7 +89,7 @@ export const SocketHandler = (io) => {
     // Send Direct Message
     socket.on("send-message", async (data) => {
       try {
-        const { senderId, receiverId, text } = data;
+        const { senderId, receiverId, text, replyToId } = data;
 
         if (!senderId || !receiverId || !text?.trim()) {
           return;
@@ -70,6 +100,23 @@ export const SocketHandler = (io) => {
             senderId,
             receiverId,
             text: text.trim(),
+            replyToId: replyToId || null,
+          },
+          include: {
+            replyTo: {
+              select: {
+                id: true,
+                text: true,
+                senderId: true,
+              },
+            },
+            reactions: {
+              select: {
+                id: true,
+                userId: true,
+                emoji: true,
+              },
+            },
           },
         });
 
@@ -78,10 +125,24 @@ export const SocketHandler = (io) => {
           senderId: message.senderId,
           receiverId: message.receiverId,
           text: message.text,
+
+          replyToId: message.replyToId,
+
+          replyTo: message.replyTo
+            ? {
+                id: message.replyTo.id,
+                text: message.replyTo.text,
+                senderId: message.replyTo.senderId,
+              }
+            : null,
+
+          reactions: message.reactions,
+
           timestamp: message.createdAt.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           }),
+
           createdAt: message.createdAt.toISOString(),
         };
 
