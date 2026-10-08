@@ -190,6 +190,8 @@
   align-items: flex-end;
   gap: 8px;
   width: 100%;
+  transition: transform 0.2s ease;
+  touch-action: pan-y;
 }
 
 .igMessageRow.mine {
@@ -204,12 +206,16 @@
 }
 
 .igBubble {
-  max-width: 60%;
+  max-width: 100%;
   padding: 8px 14px;
   border-radius: 20px;
   font-size: 13px;
   line-height: 1.4;
   word-break: break-word;
+}
+
+.igBubble p {
+  margin: 0;
 }
 
 .igBubble.mine {
@@ -281,30 +287,6 @@
   margin-bottom: 8px;
 }
 
-/* Responsive Mobile Rules */
-@media (max-width: 650px) {
-  .igChatContainer {
-    max-width: 420px;
-    height: calc(100vh - 128px);
-  }
-
-  .igChatSidebar.hideOnMobile {
-    display: none;
-  }
-
-  .igChatMain.hideOnMobile {
-    display: none;
-  }
-
-  .igChatSidebar {
-    width: 100%;
-  }
-
-  .mobileBackBtn {
-    display: block;
-  }
-}
-
 .chatDateSeparator {
   display: flex;
   justify-content: center;
@@ -344,60 +326,6 @@
 
 .messageSwipeWrapper.showMessageTime .igMessageRow.mine {
   transform: translateX(-50px);
-}
-
-.igMessageRow {
-  transition: transform 0.2s ease;
-  touch-action: pan-y;
-}
-
-.messageSwipeWrapper .messageTimeReveal {
-  right: 0;
-}
-
-.messageSwipeWrapper:has(.igMessageRow.mine) .messageTimeReveal {
-  right: 0;
-}
-
-.replyPreview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  border-left: 3px solid #0095f6;
-  background: #f5f5f5;
-  border-radius: 8px;
-}
-
-.replyPreview span {
-  display: block;
-  font-size: 10px;
-  color: #8e8e8e;
-  margin-bottom: 2px;
-}
-
-.replyPreview p {
-  margin: 0;
-  font-size: 12px;
-  color: #262626;
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.replyPreview button {
-  border: none;
-  background: transparent;
-  font-size: 20px;
-  color: #8e8e8e;
-  cursor: pointer;
-}
-
-.igBubble p {
-  margin: 0;
 }
 
 .replyPreview {
@@ -504,17 +432,12 @@
 .chatUnreadBadge {
   min-width: 18px;
   height: 18px;
-
   padding: 0 5px;
-
   border-radius: 999px;
-
   background: #ed4956;
   color: white;
-
   font-size: 10px;
   font-weight: 700;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -523,8 +446,211 @@
 .messageSeenStatus {
   display: block;
   margin-top: 3px;
-
   font-size: 10px;
   color: #8e8e8e;
   text-align: right;
+}
+
+/* =========================================
+   MESSAGE REACTIONS
+   ========================================= */
+
+.messageContentGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 60%;
+}
+
+.igMessageRow.theirs .messageContentGroup {
+  align-items: flex-start;
+}
+
+.igMessageRow.mine .messageContentGroup {
+  align-items: flex-end;
+}
+
+.messageBubbleLine {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Desktop: only received messages get the reaction button */
+.messageReactionTrigger {
+  display: none;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  padding: 0;
+  border: 1px solid #dbdbdb;
+  border-radius: 50%;
+  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.messageSwipeWrapper:hover .igMessageRow.theirs .messageReactionTrigger {
+  display: flex;
+}
+
+.messageReactionTrigger:hover {
+  background: #f5f5f5;
+  transform: scale(1.08);
+}
+
+/* Quick reaction bar */
+.messageReactionPicker {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 7px;
+  background: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 22px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
+  z-index: 30;
+}
+
+.quickReactionButton,
+.reactionPlusButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 19px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.quickReactionButton:hover,
+.reactionPlusButton:hover {
+  background: #f3f3f3;
+  transform: scale(1.18);
+}
+
+.reactionPlusButton {
+  font-size: 22px;
+  color: #555555;
+  border-left: 1px solid #eeeeee;
+  border-radius: 0;
+  margin-left: 3px;
+  padding-left: 5px;
+}
+
+/* Full emoji picker */
+.fullMessageEmojiPicker {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  z-index: 40;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.18);
+}
+
+/* Reaction results indicator */
+.messageReactionResults {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  z-index: 5;
+}
+
+.messageReactionResults.theirs {
+  align-self: flex-start;
+  margin-left: 6px;
+}
+
+.messageReactionResults.mine {
+  align-self: flex-end;
+  margin-right: 6px;
+}
+
+.messageReactionResult {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 20px;
+  padding: 1px 6px;
+  background: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.reactionCount {
+  font-size: 10px;
+  color: #555555;
+  font-weight: 600;
+}
+
+/* Responsive Mobile Rules */
+@media (max-width: 650px) {
+  .igChatContainer {
+    max-width: 420px;
+    height: calc(100vh - 128px);
+  }
+
+  .igChatSidebar.hideOnMobile {
+    display: none;
+  }
+
+  .igChatMain.hideOnMobile {
+    display: none;
+  }
+
+  .igChatSidebar {
+    width: 100%;
+  }
+
+  .mobileBackBtn {
+    display: block;
+  }
+
+  .messageReactionTrigger {
+    display: none !important;
+  }
+
+  .messageContentGroup {
+    max-width: 78%;
+  }
+
+  .messageReactionPicker {
+    left: 0;
+    bottom: calc(100% + 8px);
+  }
+
+  .fullMessageEmojiPicker {
+    position: fixed;
+    left: 50%;
+    bottom: 80px;
+    right: auto;
+    transform: translateX(-50%);
+    z-index: 110;
+  }
+
+  .messageReactionPicker .quickReactionButton,
+  .messageReactionPicker .reactionPlusButton {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+  }
 }

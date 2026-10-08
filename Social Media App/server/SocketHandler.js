@@ -201,6 +201,110 @@ export const SocketHandler = (io) => {
       }
     });
 
+    // Message Reaction
+    socket.on("react-to-message", async ({ messageId, userId, emoji }) => {
+      try {
+        if (!messageId || !userId || !emoji) {
+          return;
+        }
+
+        const message = await prisma.message.findUnique({
+          where: {
+            id: messageId,
+          },
+          select: {
+            senderId: true,
+            receiverId: true,
+          },
+        });
+
+        if (!message) {
+          return;
+        }
+        // Users cannot react to their own messages
+        if (String(message.senderId) === String(userId)) {
+          return;
+        }
+
+        const existingReaction = await prisma.messageReaction.findUnique({
+          where: {
+            messageId_userId: {
+              messageId,
+              userId,
+            },
+          },
+        });
+
+        /*
+         * Same emoji clicked again
+         * → remove the reaction
+         */
+        if (existingReaction && existingReaction.emoji === emoji) {
+          await prisma.messageReaction.delete({
+            where: {
+              id: existingReaction.id,
+            },
+          });
+        } else {
+          /*
+           * No reaction
+           * → create reaction
+           *
+           * Different emoji
+           * → update existing reaction
+           */
+          await prisma.messageReaction.upsert({
+            where: {
+              messageId_userId: {
+                messageId,
+                userId,
+              },
+            },
+            update: {
+              emoji,
+            },
+            create: {
+              messageId,
+              userId,
+              emoji,
+            },
+          });
+        }
+
+        const reactions = await prisma.messageReaction.findMany({
+          where: {
+            messageId,
+          },
+          select: {
+            id: true,
+            userId: true,
+            emoji: true,
+          },
+        });
+
+        const reactionData = {
+          messageId,
+          reactions,
+        };
+
+        /*
+         * Send updated reactions to both
+         * users involved in the conversation.
+         */
+        io.to(String(message.senderId)).emit(
+          "message-reaction-updated",
+          reactionData,
+        );
+
+        io.to(String(message.receiverId)).emit(
+          "message-reaction-updated",
+          reactionData,
+        );
+      } catch (err) {
+        console.error("Socket message reaction error:", err);
+      }
+    });
+
     // User started typing
     socket.on("typing-started", ({ senderId, receiverId }) => {
       if (!senderId || !receiverId) return;

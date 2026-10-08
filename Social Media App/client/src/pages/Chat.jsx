@@ -2,17 +2,14 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import "../styles/Chat.css";
 import Navbar from "../components/Navbar";
 import { FiSearch, FiSend } from "react-icons/fi";
+import EmojiPicker from "emoji-picker-react";
 import { GeneralContext } from "../context/GeneralContextProvider";
 import navProfile from "../images/nav-profile.avif";
 import axios from "axios";
 
 const Chat = () => {
-  const {
-    socket,
-    getUnreadCount,
-    clearUnreadMessages,
-    setActiveChat,
-  } = useContext(GeneralContext);
+  const { socket, getUnreadCount, clearUnreadMessages, setActiveChat } =
+    useContext(GeneralContext);
 
   const userId = localStorage.getItem("userId");
   const currentUsername = localStorage.getItem("username");
@@ -32,14 +29,20 @@ const Chat = () => {
   const [typedMessage, setTypedMessage] = useState("");
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
 
+  /* Message Reaction State */
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState(null);
+  const [fullEmojiPickerMessageId, setFullEmojiPickerMessageId] = useState(null);
+
+  const longPressTimerRef = useRef(null);
+  const isLongPressRef = useRef(false);
+
+  const reactionEmojis = ["❤️", "😂", "😍", "😮", "😢", "👍"];
+
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const isTypingRef = useRef(false);
 
-  /*
-   * Clear the globally active chat when leaving
-   * the Chat page.
-   */
+  /* Clear the globally active chat on unmount */
   useEffect(() => {
     return () => {
       setActiveChat(null);
@@ -56,9 +59,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  /*
-   * Fetch mutual chat contacts
-   */
+  /* Fetch mutual chat contacts */
   useEffect(() => {
     const fetchMutualContacts = async () => {
       if (!userId) return;
@@ -80,21 +81,18 @@ const Chat = () => {
           setActiveChatUser(null);
         }
       } catch (err) {
-        console.error(
-          "Error fetching mutual chat contacts:",
-          err
-        );
+        console.error("Error fetching mutual chat contacts:", err);
       }
     };
 
     fetchMutualContacts();
   }, [userId]);
 
-  /*
-   * Socket listeners for the active conversation
-   */
+  /* Socket listeners for the active conversation */
   useEffect(() => {
-    if (!socket || !activeChatUser || !userId) return;
+    if (!socket || !activeChatUser || !userId) {
+      return;
+    }
 
     const handleNewMessage = (data) => {
       const isCurrentConversation =
@@ -107,10 +105,6 @@ const Chat = () => {
 
       setMessages((prev) => [...prev, data]);
 
-      /*
-       * If receiver is currently viewing this conversation,
-       * immediately mark the incoming message as seen.
-       */
       if (
         String(data.senderId) === String(activeChatUser.id) &&
         String(data.receiverId) === String(userId)
@@ -124,157 +118,88 @@ const Chat = () => {
       }
     };
 
-    const handleChatHistory = ({
-      otherUserId,
-      messages,
-    }) => {
-      if (
-        String(otherUserId) ===
-        String(activeChatUser.id)
-      ) {
+    const handleChatHistory = ({ otherUserId, messages }) => {
+      if (String(otherUserId) === String(activeChatUser.id)) {
         setMessages(messages);
       }
     };
 
     const handleUserTyping = ({ senderId }) => {
-      if (
-        String(senderId) ===
-        String(activeChatUser.id)
-      ) {
+      if (String(senderId) === String(activeChatUser.id)) {
         setIsOtherUserTyping(true);
       }
     };
 
-    const handleUserStoppedTyping = ({
-      senderId,
-    }) => {
-      if (
-        String(senderId) ===
-        String(activeChatUser.id)
-      ) {
+    const handleUserStoppedTyping = ({ senderId }) => {
+      if (String(senderId) === String(activeChatUser.id)) {
         setIsOtherUserTyping(false);
       }
     };
 
-    const handleMessagesSeen = ({
-      userId: seenByUserId,
-    }) => {
-      /*
-       * The person who saw the messages must be
-       * the other person in the current conversation.
-       */
-      if (
-        String(seenByUserId) !==
-        String(activeChatUser.id)
-      ) {
+    const handleMessagesSeen = ({ userId: seenByUserId }) => {
+      if (String(seenByUserId) !== String(activeChatUser.id)) {
         return;
       }
 
       setMessages((prev) =>
         prev.map((message) => {
-          if (
-            String(message.senderId) ===
-            String(userId)
-          ) {
+          if (String(message.senderId) === String(userId)) {
             return {
               ...message,
               isSeen: true,
               seenAt: new Date().toISOString(),
             };
           }
-
           return message;
         })
       );
     };
 
-    socket.on(
-      "receive-message",
-      handleNewMessage
-    );
-
-    socket.on(
-      "chat-history",
-      handleChatHistory
-    );
-
-    socket.on(
-      "messages-seen",
-      handleMessagesSeen
-    );
-
-    socket.on(
-      "user-typing",
-      handleUserTyping
-    );
-
-    socket.on(
-      "user-stopped-typing",
-      handleUserStoppedTyping
-    );
-
-    return () => {
-      socket.off(
-        "receive-message",
-        handleNewMessage
-      );
-
-      socket.off(
-        "chat-history",
-        handleChatHistory
-      );
-
-      socket.off(
-        "messages-seen",
-        handleMessagesSeen
-      );
-
-      socket.off(
-        "user-typing",
-        handleUserTyping
-      );
-
-      socket.off(
-        "user-stopped-typing",
-        handleUserStoppedTyping
+    const handleMessageReactionUpdated = ({ messageId, reactions }) => {
+      setMessages((prev) =>
+        prev.map((message) =>
+          String(message.id) === String(messageId)
+            ? {
+                ...message,
+                reactions,
+              }
+            : message
+        )
       );
     };
-  }, [
-    socket,
-    activeChatUser,
-    userId,
-    clearUnreadMessages,
-  ]);
 
-  /*
-   * When active chat changes:
-   *
-   * 1. Set global active chat
-   * 2. Clear current messages temporarily
-   * 3. Clear unread count
-   * 4. Fetch chat history
-   * 5. Mark received messages as seen
-   */
+    socket.on("receive-message", handleNewMessage);
+    socket.on("chat-history", handleChatHistory);
+    socket.on("messages-seen", handleMessagesSeen);
+    socket.on("user-typing", handleUserTyping);
+    socket.on("user-stopped-typing", handleUserStoppedTyping);
+    socket.on("message-reaction-updated", handleMessageReactionUpdated);
+
+    return () => {
+      socket.off("receive-message", handleNewMessage);
+      socket.off("chat-history", handleChatHistory);
+      socket.off("messages-seen", handleMessagesSeen);
+      socket.off("user-typing", handleUserTyping);
+      socket.off("user-stopped-typing", handleUserStoppedTyping);
+      socket.off("message-reaction-updated", handleMessageReactionUpdated);
+    };
+  }, [socket, activeChatUser, userId, clearUnreadMessages]);
+
+  /* Handle active conversation updates */
   useEffect(() => {
-    if (
-      !socket ||
-      !activeChatUser ||
-      !userId
-    ) {
+    if (!socket || !activeChatUser || !userId) {
       return;
     }
 
     setActiveChat(activeChatUser.id);
-
     setMessages([]);
     setIsOtherUserTyping(false);
+    setReactionPickerMessageId(null);
+    setFullEmojiPickerMessageId(null);
 
     if (typingTimeoutRef.current) {
-      clearTimeout(
-        typingTimeoutRef.current
-      );
+      clearTimeout(typingTimeoutRef.current);
     }
-
     isTypingRef.current = false;
 
     clearUnreadMessages(activeChatUser.id);
@@ -288,25 +213,12 @@ const Chat = () => {
       userId,
       otherUserId: activeChatUser.id,
     });
-  }, [
-    socket,
-    activeChatUser,
-    userId,
-    setActiveChat,
-    clearUnreadMessages,
-  ]);
+  }, [socket, activeChatUser, userId, setActiveChat, clearUnreadMessages]);
 
-  /*
-   * Typing
-   */
   const handleTyping = (value) => {
     setTypedMessage(value);
 
-    if (
-      !socket ||
-      !activeChatUser ||
-      !userId
-    ) {
+    if (!socket || !activeChatUser || !userId) {
       return;
     }
 
@@ -315,14 +227,11 @@ const Chat = () => {
         senderId: userId,
         receiverId: activeChatUser.id,
       });
-
       isTypingRef.current = true;
     }
 
     if (typingTimeoutRef.current) {
-      clearTimeout(
-        typingTimeoutRef.current
-      );
+      clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = setTimeout(() => {
@@ -330,22 +239,14 @@ const Chat = () => {
         senderId: userId,
         receiverId: activeChatUser.id,
       });
-
       isTypingRef.current = false;
     }, 1500);
   };
 
-  /*
-   * Send message
-   */
   const handleSendMessage = (e) => {
     e.preventDefault();
 
-    if (
-      !typedMessage.trim() ||
-      !activeChatUser ||
-      !socket
-    ) {
+    if (!typedMessage.trim() || !activeChatUser || !socket) {
       return;
     }
 
@@ -355,21 +256,16 @@ const Chat = () => {
       receiverId: activeChatUser.id,
       text: typedMessage.trim(),
       replyToId: replyingTo?.id || null,
-      timestamp: new Date().toLocaleTimeString(
-        [],
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      ),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     socket.emit("send-message", newMsg);
 
     if (typingTimeoutRef.current) {
-      clearTimeout(
-        typingTimeoutRef.current
-      );
+      clearTimeout(typingTimeoutRef.current);
     }
 
     socket.emit("typing-stopped", {
@@ -378,16 +274,35 @@ const Chat = () => {
     });
 
     isTypingRef.current = false;
-
     setTypedMessage("");
     setReplyingTo(null);
     setReplyingMessageId(null);
   };
 
+  const handleMessageReaction = (messageId, emoji) => {
+    if (!socket || !userId) {
+      return;
+    }
+
+    socket.emit("react-to-message", {
+      messageId,
+      userId,
+      emoji,
+    });
+
+    setReactionPickerMessageId(null);
+    setFullEmojiPickerMessageId(null);
+  };
+
+  const handleFullEmojiSelect = (emojiData) => {
+    if (!reactionPickerMessageId) {
+      return;
+    }
+    handleMessageReaction(reactionPickerMessageId, emojiData.emoji);
+  };
+
   const filteredUsers = usersList.filter((u) =>
-    u.username
-      .toLowerCase()
-      .includes(searchUser.toLowerCase())
+    u.username.toLowerCase().includes(searchUser.toLowerCase())
   );
 
   const getMessageDate = (message) => {
@@ -396,22 +311,16 @@ const Chat = () => {
 
   const isSameDay = (date1, date2) => {
     return (
-      date1.getFullYear() ===
-        date2.getFullYear() &&
-      date1.getMonth() ===
-        date2.getMonth() &&
-      date1.getDate() ===
-        date2.getDate()
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
     );
   };
 
   const getDateLabel = (date) => {
     const today = new Date();
-
     const yesterday = new Date();
-    yesterday.setDate(
-      today.getDate() - 1
-    );
+    yesterday.setDate(today.getDate() - 1);
 
     if (isSameDay(date, today)) {
       return "Today";
@@ -422,54 +331,76 @@ const Chat = () => {
     }
 
     const differenceInDays = Math.floor(
-      (today.setHours(0, 0, 0, 0) -
-        new Date(date).setHours(
-          0,
-          0,
-          0,
-          0
-        )) /
+      (today.setHours(0, 0, 0, 0) - new Date(date).setHours(0, 0, 0, 0)) /
         (1000 * 60 * 60 * 24)
     );
 
     if (differenceInDays < 7) {
-      return date.toLocaleDateString(
-        [],
-        {
-          weekday: "long",
-        }
-      );
+      return date.toLocaleDateString([], {
+        weekday: "long",
+      });
     }
 
-    return date.toLocaleDateString(
-      [],
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    );
+    return date.toLocaleDateString([], {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
-  /*
-   * Touch swipe
-   */
+  /* Touch handlers */
   const handleMessageTouchStart = (e) => {
-    swipeStartX.current =
-      e.touches[0].clientX;
+    swipeStartX.current = e.touches[0].clientX;
+    isLongPressRef.current = false;
+
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+
+    const messageElement = e.currentTarget;
+    const messageId = messageElement.dataset.messageId;
+    const messageSenderId = messageElement.dataset.senderId;
+
+    if (String(messageSenderId) === String(userId)) {
+      return;
+    }
+
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      if (!messageId) return;
+
+      setReactionPickerMessageId(messageId);
+      setFullEmojiPickerMessageId(null);
+      setSwipedMessageId(null);
+    }, 600);
   };
 
-  const handleMessageTouchEnd = (
-    e,
-    message
-  ) => {
-    const touchEndX =
-      e.changedTouches[0].clientX;
+  const handleMessageTouchMove = (e) => {
+    if (!longPressTimerRef.current) return;
 
-    const swipeDistance =
-      touchEndX - swipeStartX.current;
+    const currentX = e.touches[0].clientX;
+    const movement = Math.abs(currentX - swipeStartX.current);
 
-    // Swipe right → Reply
+    if (movement > 10) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleMessageTouchEnd = (e, message) => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    if (isLongPressRef.current) {
+      isLongPressRef.current = false;
+      return;
+    }
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const swipeDistance = touchEndX - swipeStartX.current;
+
     if (swipeDistance > 60) {
       setReplyingTo(message);
       setReplyingMessageId(message.id);
@@ -477,40 +408,28 @@ const Chat = () => {
       return;
     }
 
-    // Swipe left → Show time
     if (swipeDistance < -60) {
       setSwipedMessageId(message.id);
       return;
     }
 
-    // Small/no swipe → hide timestamp
     if (Math.abs(swipeDistance) < 30) {
       setSwipedMessageId(null);
     }
   };
 
-  /*
-   * Mouse swipe
-   */
+  /* Mouse drag handlers */
   const handleMessageMouseDown = (e) => {
     swipeStartX.current = e.clientX;
     isMouseSwiping.current = true;
   };
 
-  const handleMessageMouseUp = (
-    e,
-    message
-  ) => {
-    if (!isMouseSwiping.current) {
-      return;
-    }
+  const handleMessageMouseUp = (e, message) => {
+    if (!isMouseSwiping.current) return;
 
-    const swipeDistance =
-      e.clientX - swipeStartX.current;
-
+    const swipeDistance = e.clientX - swipeStartX.current;
     isMouseSwiping.current = false;
 
-    // Mouse drag right → Reply
     if (swipeDistance > 60) {
       setReplyingTo(message);
       setReplyingMessageId(message.id);
@@ -518,40 +437,22 @@ const Chat = () => {
       return;
     }
 
-    // Mouse drag left → Show time
     if (swipeDistance < -60) {
       setSwipedMessageId(message.id);
       return;
     }
 
-    // Small/no drag → hide timestamp
     if (Math.abs(swipeDistance) < 30) {
       setSwipedMessageId(null);
     }
   };
 
-  /*
-   * IMPORTANT:
-   *
-   * Find the latest outgoing message which has been seen.
-   *
-   * This is calculated ONCE, outside messages.map().
-   * Therefore only one "Seen" label can appear.
-   */
-  const lastSeenMessageIndex = messages.reduce(
-    (lastIndex, message, index) => {
-      if (
-        String(message.senderId) ===
-          String(userId) &&
-        message.isSeen
-      ) {
-        return index;
-      }
-
-      return lastIndex;
-    },
-    -1
-  );
+  const lastSeenMessageIndex = messages.reduce((lastIndex, message, index) => {
+    if (String(message.senderId) === String(userId) && message.isSeen) {
+      return index;
+    }
+    return lastIndex;
+  }, -1);
 
   return (
     <div className="chatRoot">
@@ -559,62 +460,33 @@ const Chat = () => {
 
       <div className="igChatContainer">
         {/* LEFT SIDEBAR */}
-        <div
-          className={`igChatSidebar ${
-            activeChatUser
-              ? "hideOnMobile"
-              : ""
-          }`}
-        >
+        <div className={`igChatSidebar ${activeChatUser ? "hideOnMobile" : ""}`}>
           <div className="igChatSidebarHeader">
             <h3>{currentUsername}</h3>
           </div>
 
           <div className="igChatSearchWrapper">
             <FiSearch className="igSearchIcon" />
-
             <input
               type="text"
               placeholder="Search mutual friends..."
               value={searchUser}
-              onChange={(e) =>
-                setSearchUser(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setSearchUser(e.target.value)}
             />
           </div>
 
           <div className="igConversationsList">
             {filteredUsers.length === 0 ? (
-              <p className="noConversationsText">
-                No mutual connections found
-              </p>
+              <p className="noConversationsText">No mutual connections found</p>
             ) : (
               filteredUsers.map((user) => (
                 <div
                   key={user.id}
                   className={`igConversationCard ${
-                    activeChatUser?.id ===
-                    user.id
-                      ? "active"
-                      : ""
+                    activeChatUser?.id === user.id ? "active" : ""
                   }`}
                   onClick={() => {
-                    /*
-                     * Clicking the currently open
-                     * conversation should do nothing.
-                     *
-                     * This prevents the chat from
-                     * being cleared/re-fetched.
-                     */
-                    if (
-                      activeChatUser?.id ===
-                      user.id
-                    ) {
-                      return;
-                    }
-
+                    if (activeChatUser?.id === user.id) return;
                     setActiveChatUser(user);
                   }}
                 >
@@ -626,28 +498,16 @@ const Chat = () => {
 
                   <div className="contactInfo">
                     <div className="contactNameRow">
-                      <p className="contactName">
-                        {user.username}
-                      </p>
-
-                      {getUnreadCount(
-                        user.id
-                      ) > 0 && (
+                      <p className="contactName">{user.username}</p>
+                      {getUnreadCount(user.id) > 0 && (
                         <span className="chatUnreadBadge">
-                          {getUnreadCount(
-                            user.id
-                          ) > 99
+                          {getUnreadCount(user.id) > 99
                             ? "99+"
-                            : getUnreadCount(
-                                user.id
-                              )}
+                            : getUnreadCount(user.id)}
                         </span>
                       )}
                     </div>
-
-                    <span className="contactSubtext">
-                      Mutual Friend
-                    </span>
+                    <span className="contactSubtext">Mutual Friend</span>
                   </div>
                 </div>
               ))
@@ -656,13 +516,7 @@ const Chat = () => {
         </div>
 
         {/* RIGHT CHAT */}
-        <div
-          className={`igChatMain ${
-            !activeChatUser
-              ? "hideOnMobile"
-              : ""
-          }`}
-        >
+        <div className={`igChatMain ${!activeChatUser ? "hideOnMobile" : ""}`}>
           {activeChatUser ? (
             <>
               {/* CHAT HEADER */}
@@ -672,6 +526,8 @@ const Chat = () => {
                   onClick={() => {
                     setActiveChatUser(null);
                     setActiveChat(null);
+                    setReactionPickerMessageId(null);
+                    setFullEmojiPickerMessageId(null);
                   }}
                 >
                   ←
@@ -684,20 +540,9 @@ const Chat = () => {
                 />
 
                 <div className="activeUserMeta">
-                  <h4>
-                    {activeChatUser.username}
-                  </h4>
-
-                  <span
-                    className={
-                      isOtherUserTyping
-                        ? "typingStatus"
-                        : ""
-                    }
-                  >
-                    {isOtherUserTyping
-                      ? "Typing..."
-                      : "Active now"}
+                  <h4>{activeChatUser.username}</h4>
+                  <span className={isOtherUserTyping ? "typingStatus" : ""}>
+                    {isOtherUserTyping ? "Typing..." : "Active now"}
                   </span>
                 </div>
               </div>
@@ -707,92 +552,55 @@ const Chat = () => {
                 {messages.length === 0 ? (
                   <div className="noMessagesPlaceholder">
                     <img
-                      src={
-                        activeChatUser.profilePic
-                      }
+                      src={activeChatUser.profilePic}
                       alt=""
                       className="largePlaceholderAvatar"
                     />
-
-                    <h4>
-                      {activeChatUser.username}
-                    </h4>
-
-                    <p>
-                      Send a message to start
-                      chatting on SocialeX.
-                    </p>
+                    <h4>{activeChatUser.username}</h4>
+                    <p>Send a message to start chatting on SocialeX.</p>
                   </div>
                 ) : (
                   messages.map((msg, index) => {
-                    const isMine =
-                      String(msg.senderId) ===
-                      String(userId);
-
-                    const currentDate =
-                      getMessageDate(msg);
-
-                    const previousMessage =
-                      messages[index - 1];
-
-                    const previousDate =
-                      previousMessage
-                        ? getMessageDate(
-                            previousMessage
-                          )
-                        : null;
+                    const isMine = String(msg.senderId) === String(userId);
+                    const currentDate = getMessageDate(msg);
+                    const previousMessage = messages[index - 1];
+                    const previousDate = previousMessage
+                      ? getMessageDate(previousMessage)
+                      : null;
 
                     const showDateSeparator =
-                      !previousDate ||
-                      !isSameDay(
-                        currentDate,
-                        previousDate
-                      );
+                      !previousDate || !isSameDay(currentDate, previousDate);
+
+                    const reactionGroups = (msg.reactions || []).reduce(
+                      (groups, reaction) => {
+                        groups[reaction.emoji] =
+                          (groups[reaction.emoji] || 0) + 1;
+                        return groups;
+                      },
+                      {}
+                    );
 
                     return (
-                      <React.Fragment
-                        key={msg.id}
-                      >
+                      <React.Fragment key={msg.id}>
                         {showDateSeparator && (
                           <div className="chatDateSeparator">
-                            <span>
-                              {getDateLabel(
-                                currentDate
-                              )}
-                            </span>
+                            <span>{getDateLabel(currentDate)}</span>
                           </div>
                         )}
 
                         <div
                           className={`messageSwipeWrapper ${
-                            swipedMessageId ===
-                            msg.id
-                              ? "showMessageTime"
-                              : ""
+                            swipedMessageId === msg.id ? "showMessageTime" : ""
                           } ${
-                            replyingMessageId ===
-                            msg.id
-                              ? "replyingMessage"
-                              : ""
+                            replyingMessageId === msg.id ? "replyingMessage" : ""
                           }`}
-                          onTouchStart={
-                            handleMessageTouchStart
-                          }
-                          onTouchEnd={(e) =>
-                            handleMessageTouchEnd(
-                              e,
-                              msg
-                            )
-                          }
-                          onMouseDown={
-                            handleMessageMouseDown
-                          }
-                          onMouseUp={(e) =>
-                            handleMessageMouseUp(
-                              e,
-                              msg
-                            )
-                          }
+                          data-message-id={msg.id}
+                          data-sender-id={msg.senderId}
+                          onTouchStart={handleMessageTouchStart}
+                          onTouchMove={handleMessageTouchMove}
+                          onTouchEnd={(e) => handleMessageTouchEnd(e, msg)}
+                          onMouseDown={handleMessageMouseDown}
+                          onMouseUp={(e) => handleMessageMouseUp(e, msg)}
                         >
                           <div className="messageTimeReveal">
                             {msg.timestamp}
@@ -800,63 +608,140 @@ const Chat = () => {
 
                           <div
                             className={`igMessageRow ${
-                              isMine
-                                ? "mine"
-                                : "theirs"
+                              isMine ? "mine" : "theirs"
                             }`}
                           >
                             {!isMine && (
                               <img
-                                src={
-                                  activeChatUser.profilePic
-                                }
+                                src={activeChatUser.profilePic}
                                 alt=""
                                 className="bubbleAvatar"
                               />
                             )}
 
-                            <div
-                              className={`igBubble ${
-                                isMine
-                                  ? "mine"
-                                  : "theirs"
-                              }`}
-                            >
-                              {msg.replyTo && (
-                                <div className="repliedMessage">
-                                  <span className="repliedMessageUser">
-                                    {msg.replyTo
-                                      .senderId ===
-                                    userId
-                                      ? "You"
-                                      : activeChatUser.username}
-                                  </span>
+                            <div className="messageContentGroup">
+                              <div className="messageBubbleLine">
+                                <div
+                                  className={`igBubble ${
+                                    isMine ? "mine" : "theirs"
+                                  }`}
+                                >
+                                  {msg.replyTo && (
+                                    <div className="repliedMessage">
+                                      <span className="repliedMessageUser">
+                                        {msg.replyTo.senderId === userId
+                                          ? "You"
+                                          : activeChatUser.username}
+                                      </span>
+                                      <p>{msg.replyTo.text}</p>
+                                    </div>
+                                  )}
 
-                                  <p>
-                                    {
-                                      msg.replyTo
-                                        .text
-                                    }
-                                  </p>
+                                  <p className="messageText">{msg.text}</p>
+
+                                  {isMine &&
+                                    msg.isSeen &&
+                                    index === lastSeenMessageIndex && (
+                                      <span className="messageSeenStatus">
+                                        Seen
+                                      </span>
+                                    )}
+                                </div>
+
+                                {!isMine && (
+                                  <button
+                                    type="button"
+                                    className="messageReactionTrigger"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setReactionPickerMessageId(
+                                        reactionPickerMessageId === msg.id
+                                          ? null
+                                          : msg.id
+                                      );
+                                      setFullEmojiPickerMessageId(null);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onMouseUp={(e) => e.stopPropagation()}
+                                  >
+                                    😊
+                                  </button>
+                                )}
+                              </div>
+
+                              {Object.keys(reactionGroups).length > 0 && (
+                                <div
+                                  className={`messageReactionResults ${
+                                    isMine ? "mine" : "theirs"
+                                  }`}
+                                >
+                                  {Object.entries(reactionGroups).map(
+                                    ([emoji, count]) => (
+                                      <span
+                                        key={emoji}
+                                        className="messageReactionResult"
+                                      >
+                                        {emoji}
+                                        {count > 1 && (
+                                          <span className="reactionCount">
+                                            {count}
+                                          </span>
+                                        )}
+                                      </span>
+                                    )
+                                  )}
                                 </div>
                               )}
 
-                              <p className="messageText">
-                                {msg.text}
-                              </p>
+                              {!isMine && reactionPickerMessageId === msg.id && (
+                                <div
+                                  className="messageReactionPicker"
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                >
+                                  {reactionEmojis.map((emoji) => (
+                                    <button
+                                      key={emoji}
+                                      type="button"
+                                      className="quickReactionButton"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMessageReaction(msg.id, emoji);
+                                      }}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
 
-                              {/*
-                               * Instagram-style Seen:
-                               * ONLY the latest seen
-                               * outgoing message shows Seen.
-                               */}
-                              {isMine &&
-                                msg.isSeen &&
-                                index ===
-                                  lastSeenMessageIndex && (
-                                  <span className="messageSeenStatus">
-                                    Seen
-                                  </span>
+                                  <button
+                                    type="button"
+                                    className="reactionPlusButton"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setFullEmojiPickerMessageId(msg.id);
+                                      setReactionPickerMessageId(msg.id);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              )}
+
+                              {!isMine &&
+                                fullEmojiPickerMessageId === msg.id && (
+                                  <div
+                                    className="fullMessageEmojiPicker"
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                  >
+                                    <EmojiPicker
+                                      onEmojiClick={handleFullEmojiSelect}
+                                      width={300}
+                                      height={380}
+                                    />
+                                  </div>
                                 )}
                             </div>
                           </div>
@@ -865,25 +750,16 @@ const Chat = () => {
                     );
                   })
                 )}
-
                 <div ref={messagesEndRef} />
               </div>
 
               {/* INPUT */}
-              <form
-                className="igChatInputArea"
-                onSubmit={handleSendMessage}
-              >
+              <form className="igChatInputArea" onSubmit={handleSendMessage}>
                 {replyingTo && (
                   <div className="replyPreview">
                     <div className="replyPreviewContent">
-                      <span>
-                        Replying to
-                      </span>
-
-                      <p>
-                        {replyingTo.text}
-                      </p>
+                      <span>Replying to</span>
+                      <p>{replyingTo.text}</p>
                     </div>
 
                     <button
@@ -891,9 +767,7 @@ const Chat = () => {
                       className="replyCancelBtn"
                       onClick={() => {
                         setReplyingTo(null);
-                        setReplyingMessageId(
-                          null
-                        );
+                        setReplyingMessageId(null);
                       }}
                     >
                       ×
@@ -906,27 +780,17 @@ const Chat = () => {
                     type="text"
                     placeholder="Message..."
                     value={typedMessage}
-                    onFocus={() =>
-                      setSwipedMessageId(
-                        null
-                      )
-                    }
+                    onFocus={() => setSwipedMessageId(null)}
                     onChange={(e) => {
-                      setSwipedMessageId(
-                        null
-                      );
-                      handleTyping(
-                        e.target.value
-                      );
+                      setSwipedMessageId(null);
+                      handleTyping(e.target.value);
                     }}
                   />
 
                   <button
                     type="submit"
                     className="igSendBtn"
-                    disabled={
-                      !typedMessage.trim()
-                    }
+                    disabled={!typedMessage.trim()}
                   >
                     <FiSend />
                   </button>
@@ -935,15 +799,10 @@ const Chat = () => {
             </>
           ) : (
             <div className="noChatSelected">
-              <div className="noChatIcon">
-                💬
-              </div>
-
+              <div className="noChatIcon">💬</div>
               <h3>Your Messages</h3>
-
               <p>
-                Follow users who follow you back
-                to unlock direct messaging.
+                Follow users who follow you back to unlock direct messaging.
               </p>
             </div>
           )}
