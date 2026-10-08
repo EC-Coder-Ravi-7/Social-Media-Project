@@ -79,6 +79,8 @@ export const SocketHandler = (io) => {
             }),
 
             createdAt: message.createdAt.toISOString(),
+            seenAt: message.seenAt,
+            isSeen: Boolean(message.seenAt),
           })),
         });
       } catch (err) {
@@ -144,13 +146,58 @@ export const SocketHandler = (io) => {
           }),
 
           createdAt: message.createdAt.toISOString(),
+
+          // New
+          seenAt: null,
+          isSeen: false,
         };
 
-        // Send the saved message to both users
+        // Sender gets the message immediately
         io.to(String(senderId)).emit("receive-message", formattedMessage);
+
+        // Receiver gets the message globally
         io.to(String(receiverId)).emit("receive-message", formattedMessage);
+
+        // Tell receiver that this is an unread message
+        io.to(String(receiverId)).emit("new-message-notification", {
+          messageId: message.id,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          text: message.text,
+          createdAt: message.createdAt.toISOString(),
+        });
       } catch (err) {
         console.error("Socket send-message error:", err);
+      }
+    });
+
+    // Mark messages as seen
+    socket.on("mark-messages-seen", async ({ userId, otherUserId }) => {
+      try {
+        if (!userId || !otherUserId) return;
+
+        const seenAt = new Date();
+
+        const updatedMessages = await prisma.message.updateMany({
+          where: {
+            senderId: otherUserId,
+            receiverId: userId,
+            seenAt: null,
+          },
+          data: {
+            seenAt,
+          },
+        });
+
+        if (updatedMessages.count > 0) {
+          io.to(String(otherUserId)).emit("messages-seen", {
+            userId,
+            otherUserId,
+            seenAt: seenAt.toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error("Socket mark-messages-seen error:", err);
       }
     });
 

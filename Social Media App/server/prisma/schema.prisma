@@ -122,6 +122,10 @@ model Message {
   text       String   @db.Text
   createdAt  DateTime @default(now())
 
+  // Read / Seen status
+  seenAt DateTime?
+
+
   // Reply to another message
   replyToId String?
 
