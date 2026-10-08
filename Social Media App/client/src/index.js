@@ -7,7 +7,6 @@ import reportWebVitals from './reportWebVitals';
 import {BrowserRouter} from 'react-router-dom';
 import { GeneralContextProvider } from './context/GeneralContextProvider';
 import AuthenticationContextProvider from './context/AuthenticationContextProvider';
-import { SocketContextProvider } from './context/SocketContextProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
