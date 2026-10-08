@@ -19,7 +19,7 @@ export const AuthenticationContextProvider = ({ children }) => {
       // Support login via passed credentials object or state
       const payload = credentials || { email, password };
 
-      const res = await axios.post('http://localhost:6001/login', payload);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/login`, payload);
 
       if (res.data.token) {
         const user = res.data.user;
@@ -66,7 +66,7 @@ export const AuthenticationContextProvider = ({ children }) => {
         about: 'Hey there! I am using SocialX.',
       };
 
-      const res = await axios.post('http://localhost:6001/register', payload);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, payload);
 
       if (res.status === 201 || res.status === 200) {
         alert('Registered successfully! Please sign in.');

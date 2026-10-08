@@ -21,7 +21,7 @@ const Post = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get('http://localhost:6001/fetchAllPosts');
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/fetchAllPosts`);
       setPosts(res.data || []);
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -99,7 +99,7 @@ const Post = () => {
   const handleToggleFollow = async (targetId) => {
     try {
       const res = await axios.post(
-        'http://localhost:6001/toggleFollowUser',
+        `${process.env.REACT_APP_API_URL}/toggleFollowUser`,
         {
           userId,
           targetId,

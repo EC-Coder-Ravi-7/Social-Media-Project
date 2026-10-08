@@ -66,7 +66,7 @@ const Chat = () => {
 
       try {
         const res = await axios.get(
-          `http://localhost:6001/chat/contacts/${userId}`
+          `${process.env.REACT_APP_API_URL}/chat/contacts/${userId}`
         );
 
         const contacts = (res.data || []).map((user) => ({

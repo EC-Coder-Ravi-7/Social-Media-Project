@@ -298,7 +298,7 @@ const Notifications = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:6001/toggleFollowUser",
+        `${process.env.REACT_APP_API_URL}/toggleFollowUser`,
         {
           userId,
           targetId: followerId,

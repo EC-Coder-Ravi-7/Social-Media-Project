@@ -75,7 +75,7 @@ initNotificationWorker(io);
 
 const PORT = process.env.PORT || 6001;
 
-server.listen(PORT, async () => {
+server.listen(PORT, '0.0.0.0', async () => {
   logger.info(`🚀 Server running on port ${PORT}`);
   try {
     const pingResponse = await redis.ping();

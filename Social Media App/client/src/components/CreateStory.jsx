@@ -48,7 +48,7 @@ const CreateStory = () => {
       formData.append('fileType', fileType);
       formData.append('storyFile', storyFile);
 
-      const res = await axios.post('http://localhost:6001/createStory', formData, {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/createStory`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

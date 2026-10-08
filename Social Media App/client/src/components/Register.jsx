@@ -10,7 +10,7 @@ const Register = ({ setIsLoginBox }) => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:6001/register', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {
         fullName: fullName.trim(),
         username: username.trim(),
         email: email.trim(),

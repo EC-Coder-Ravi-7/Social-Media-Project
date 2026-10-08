@@ -15,7 +15,7 @@ const Stories = () => {
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const res = await axios.get('http://localhost:6001/fetchAllStories');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/fetchAllStories`);
         setStories(res.data || []);
       } catch (err) {
         console.error('Fetch stories error:', err);

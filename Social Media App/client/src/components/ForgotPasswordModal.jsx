@@ -21,7 +21,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:6001/resetPassword', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/resetPassword`, {
         identifier: identifier.trim(),
         newPassword: newPassword.trim(),
       });
