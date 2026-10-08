@@ -10,8 +10,12 @@ import { GeneralContext } from "../context/GeneralContextProvider";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { setIsCreatePostOpen, setIsNotificationsOpen, totalUnreadMessages } =
-    useContext(GeneralContext);
+  const {
+    setIsCreatePostOpen,
+    setIsNotificationsOpen,
+    totalUnreadMessages,
+    unreadNotifications,
+  } = useContext(GeneralContext);
 
   const userId = localStorage.getItem("userId") || localStorage.getItem("_id");
   const userPic = localStorage.getItem("profilePic");
@@ -49,15 +53,21 @@ const Navbar = () => {
             onClick={() => setIsCreatePostOpen(true)}
             title="Create Post"
           />
-          <RiNotification3Line
-            className="bottomIcon"
-            onClick={() => {
-              if (setIsNotificationsOpen) {
+          <div className="notificationNavWrapper">
+            <RiNotification3Line
+              className="bottomIcon"
+              onClick={() => {
                 setIsNotificationsOpen((prev) => !prev);
-              }
-            }}
-            title="Notifications"
-          />
+              }}
+              title="Notifications"
+            />
+
+            {unreadNotifications > 0 && (
+              <span className="notificationUnreadBadge">
+                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+              </span>
+            )}
+          </div>
           <div
             className="bottomProfileCircle"
             onClick={() => navigate(`/profile/${userId}`)}
